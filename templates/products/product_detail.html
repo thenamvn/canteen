@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Canteen{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <nav class="text-sm breadcrumbs">
+        <ol class="flex items-center space-x-1">
+            <li><a href="{% url 'products:home' %}" class="text-orange-500 hover:underline">Home</a></li>
+            <li class="flex items-center space-x-1">
+                <span>/</span>
+                <a href="{% url 'products:category' product.category.slug %}" class="text-orange-500 hover:underline">{{ product.category.name }}</a>
+            </li>
+            <li class="flex items-center space-x-1">
+                <span>/</span>
+                <span>{{ product.name }}</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="p-6">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-auto object-cover rounded-lg">
+            {% else %}
+            <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                <span class="text-gray-500">No image available</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="p-6">
+            <h1 class="text-3xl font-bold mb-2">{{ product.name }}</h1>
+            <p class="text-gray-500 mb-4">Sold by: {{ product.seller.username }}</p>
+            
+            <div class="mb-4">
+                <span class="text-2xl font-bold text-orange-500">{{ product.price }} VND</span>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">Description:</h3>
+                <p class="text-gray-600">{{ product.description }}</p>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <span class="text-gray-600 mr-2">Stock:</span>
+                    <span class="{% if product.stock > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if product.stock > 0 %}
+                            {{ product.stock }} available
+                        {% else %}
+                            Out of stock
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            {% if product.stock > 0 %}
+            <form method="post" action="{% url 'cart:cart_add' product.id %}" class="mb-4">
+                {% csrf_token %}
+                <div class="flex items-center mb-4">
+                    <label for="quantity" class="mr-2">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}" class="w-20 px-3 py-2 border rounded-md text-center">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-md font-medium">
+                    Add to Cart
+                </button>
+            </form>
+            {% else %}
+            <div class="mb-4">
+                <button disabled class="w-full bg-gray-300 text-gray-500 py-3 px-4 rounded-md font-medium cursor-not-allowed">
+                    Out of Stock
+                </button>
+            </div>
+            {% endif %}
+            
+            <div class="border-t pt-4">
+                <h3 class="font-semibold mb-2">Category:</h3>
+                <a href="{% url 'products:category' product.category.slug %}" class="text-orange-500 hover:underline">
+                    {{ product.category.name }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

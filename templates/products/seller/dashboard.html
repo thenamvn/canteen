@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Seller Dashboard | Canteen{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Seller Dashboard</h1>
+    <p class="text-gray-600">Manage your products and shop details</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Sidebar -->
+    <div class="bg-white p-6 rounded-lg shadow-md h-fit">
+        <h2 class="text-xl font-bold mb-4">Shop: {{ user.seller_profile.shop_name }}</h2>
+        <ul class="space-y-2">
+            <li>
+                <a href="{% url 'seller:dashboard' %}" class="text-orange-500 font-medium">Products</a>
+            </li>
+            <li>
+                <a href="{% url 'users:seller_profile' %}" class="text-gray-600 hover:text-orange-500">Shop Settings</a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="md:col-span-3">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">My Products</h2>
+                <a href="{% url 'seller:add_product' %}" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
+                    Add New Product
+                </a>
+            </div>
+            
+            {% if products %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for product in products %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if product.image %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ product.image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <span class="text-gray-500 text-xs">No img</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                                        <div class="text-sm text-gray-500">{{ product.category.name }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ product.price }} VND</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ product.stock }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if product.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if product.is_available %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <a href="{% url 'seller:update_product' product.id %}" class="text-blue-600 hover:text-blue-900">Edit</a>
+                                    <a href="{% url 'seller:toggle_product' product.id %}" class="text-yellow-600 hover:text-yellow-900">
+                                        {% if product.is_available %}Disable{% else %}Enable{% endif %}
+                                    </a>
+                                    <form method="post" action="{% url 'seller:delete_product' product.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p class="text-gray-500 mb-4">You haven't added any products yet</p>
+                <a href="{% url 'seller:add_product' %}" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
+                    Add Your First Product
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+# Django might be looking for a 'theme' module that doesn't exist
+# You should create a proper structure for static files in your Django project
+
+# First, make sure you have the following structure:
+# - yourproject/
+#   - static/
+#     - css/
+#       - style.css (this is where you should save your CSS)
+
+# In your settings.py, ensure you have:
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# Then in your templates, load static files with:
+# {% load static %}
+# <link rel="stylesheet" href="{% static 'css/style.css' %}">

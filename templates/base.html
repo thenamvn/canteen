@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Canteen - Online Food Delivery{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-orange-500 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div>
+                <a href="{% url 'products:home' %}" class="text-2xl font-bold">Canteen</a>
+            </div>
+            <div class="flex-1 px-8">
+                <form action="{% url 'products:home' %}" method="get" class="max-w-md mx-auto">
+                    <div class="relative">
+                        <input type="text" name="q" placeholder="Search for food..." class="w-full py-2 px-4 rounded-full text-gray-700">
+                        <button type="submit" class="absolute right-0 top-0 bottom-0 bg-orange-600 px-4 rounded-r-full">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <a href="{% url 'cart:cart_detail' %}" class="flex items-center">
+                    <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span class="font-medium">Cart ({{ cart|length }})</span>
+                </a>
+                {% if user.is_authenticated %}
+                    <div class="relative group">
+                        <button class="flex items-center focus:outline-none">
+                            <span>{{ user.username }}</span>
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden group-hover:block z-10">
+                            {% if user.is_seller %}
+                            <a href="{% url 'seller:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Seller Dashboard</a>
+                            {% endif %}
+                            <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
+                            <a href="{% url 'orders:order_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
+                            <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'users:login' %}" class="font-medium">Login</a>
+                    <a href="{% url 'users:register' %}" class="bg-white text-orange-500 px-4 py-2 rounded-md font-medium">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap justify-between">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">Canteen</h3>
+                    <p>The best food delivery service for your daily needs.</p>
+                </div>
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">Quick Links</h3>
+                    <ul>
+                        <li><a href="{% url 'products:home' %}" class="hover:text-orange-300">Home</a></li>
+                        <li><a href="#" class="hover:text-orange-300">About Us</a></li>
+                        <li><a href="#" class="hover:text-orange-300">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <h3 class="text-xl font-bold mb-2">Contact Us</h3>
+                    <p>Email: info@canteen.com</p>
+                    <p>Phone: +123 456 7890</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center">
+                <p>&copy; 2023 Canteen. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

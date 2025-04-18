@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.id %}Edit{% else %}Add{% endif %} Product | Canteen{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">{% if form.instance.id %}Edit{% else %}Add{% endif %} Product</h1>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            
+            <div class="mb-4">
+                <label for="id_category" class="block text-gray-700 mb-2">Category</label>
+                {{ form.category.errors }}
+                {{ form.category }}
+            </div>
+            
+            <div class="mb-4">
+                <label for="id_name" class="block text-gray-700 mb-2">Product Name</label>
+                {{ form.name.errors }}
+                <input type="text" name="name" id="id_name" value="{{ form.name.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <div class="mb-4">
+                <label for="id_description" class="block text-gray-700 mb-2">Description</label>
+                {{ form.description.errors }}
+                <textarea name="description" id="id_description" rows="4" class="w-full px-3 py-2 border rounded-md">{{ form.description.value|default:'' }}</textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="id_price" class="block text-gray-700 mb-2">Price (VND)</label>
+                    {{ form.price.errors }}
+                    <input type="number" name="price" id="id_price" value="{{ form.price.value|default:'' }}" min="0" step="1000" class="w-full px-3 py-2 border rounded-md">
+                </div>
+                
+                <div>
+                    <label for="id_stock" class="block text-gray-700 mb-2">Stock</label>
+                    {{ form.stock.errors }}
+                    <input type="number" name="stock" id="id_stock" value="{{ form.stock.value|default:'' }}" min="0" class="w-full px-3 py-2 border rounded-md">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="id_image" class="block text-gray-700 mb-2">Product Image</label>
+                {{ form.image.errors }}
+                {% if form.instance.image %}
+                <div class="mb-2">
+                    <img src="{{ form.instance.image.url }}" alt="{{ form.instance.name }}" class="h-32 object-cover rounded-lg">
+                    <p class="text-sm text-gray-500 mt-1">Current image</p>
+                </div>
+                {% endif %}
+                <input type="file" name="image" id="id_image" class="w-full">
+                <p class="text-sm text-gray-500 mt-1">Upload a clear image of your product (recommended size: 800x600px)</p>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_available" id="id_is_available" {% if form.is_available.value %}checked{% endif %} class="mr-2">
+                    <label for="id_is_available" class="text-gray-700">Make product available for sale</label>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <a href="{% url 'seller:dashboard' %}" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
+                    {% if form.instance.id %}Update Product{% else %}Add Product{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

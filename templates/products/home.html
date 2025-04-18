@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Canteen{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Categories</h2>
+        <a href="#" class="text-orange-500 hover:underline">View All</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {% for category in categories %}
+        <a href="{% url 'products:category' category.slug %}" class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-32 object-cover">
+            {% else %}
+            <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                <span class="text-gray-500">No image</span>
+            </div>
+            {% endif %}
+            <div class="p-4 text-center">
+                <h3 class="font-semibold">{{ category.name }}</h3>
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-full text-center py-8">
+            <p class="text-gray-500">No categories available.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div>
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Featured Products</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for product in products %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            <a href="{% url 'products:product_detail' product.slug %}">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-500">No image</span>
+                </div>
+                {% endif %}
+            </a>
+            <div class="p-4">
+                <a href="{% url 'products:product_detail' product.slug %}" class="block mb-2">
+                    <h3 class="font-semibold text-lg">{{ product.name }}</h3>
+                </a>
+                <p class="text-orange-500 font-bold mb-2">{{ product.price }} VND</p>
+                <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
+                        Add to Cart
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-8">
+            <p class="text-gray-500">No products available.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if is_paginated %}
+<div class="flex justify-center mt-8">
+    <ul class="flex space-x-2">
+        {% if page_obj.has_previous %}
+        <li>
+            <a href="?page=1" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">&laquo; First</a>
+        </li>
+        <li>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li>
+                <span class="px-3 py-1 bg-orange-500 text-white border rounded-md">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li>
+                <a href="?page={{ num }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li>
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Next</a>
+        </li>
+        <li>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
