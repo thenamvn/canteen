@@ -1,67 +1,158 @@
 {% extends "base.html" %}
 
-{% block title %}{% if form.instance.id %}Edit{% else %}Add{% endif %} Address | Canteen{% endblock %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.id %}Edit Address{% else %}Add Address{% endif %} | Canteen
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/address_form.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">{% if form.instance.id %}Edit{% else %}Add{% endif %} Address</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        
-        <div class="mb-4">
-            <label for="id_recipient_name" class="block text-gray-700 mb-2">Recipient Name</label>
-            {{ form.recipient_name.errors }}
-            <input type="text" name="recipient_name" id="id_recipient_name" value="{{ form.recipient_name.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="mb-4">
-            <label for="id_phone_number" class="block text-gray-700 mb-2">Phone Number</label>
-            {{ form.phone_number.errors }}
-            <input type="text" name="phone_number" id="id_phone_number" value="{{ form.phone_number.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="mb-4">
-            <label for="id_street_address" class="block text-gray-700 mb-2">Street Address</label>
-            {{ form.street_address.errors }}
-            <input type="text" name="street_address" id="id_street_address" value="{{ form.street_address.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label for="id_ward" class="block text-gray-700 mb-2">Ward</label>
-                {{ form.ward.errors }}
-                <input type="text" name="ward" id="id_ward" value="{{ form.ward.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
+<div class="container mx-auto px-4 py-8">
+    <div
+        class="max-w-lg mx-auto bg-white p-8 rounded-xl shadow-lg transform transition-all hover:shadow-xl form-container">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            {% if form.instance.id %}Chỉnh Sửa{% else %}Thêm{% endif %} Địa Chỉ
+        </h2>
+
+        <form method="post" class="space-y-6" id="addressForm">
+            {% csrf_token %}
+
+            {# Hiển thị lỗi toàn form #}
+            {% if form.errors %}
+            <div class="mb-4 animate-fade-in">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                    <strong class="font-bold">Có lỗi xảy ra!</strong>
+                    <ul class="list-disc pl-5 mt-2 text-sm">
+                        {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ error|escape }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                        <li>{{ error|escape }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-            
+            {% endif %}
+
+            <!-- Recipient Name -->
             <div>
-                <label for="id_district" class="block text-gray-700 mb-2">District</label>
-                {{ form.district.errors }}
-                <input type="text" name="district" id="id_district" value="{{ form.district.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
+                <label for="id_recipient_name" class="block text-sm font-medium text-gray-700 mb-1">Tên Người
+                    Nhận</label>
+                <input type="text" name="recipient_name" id="id_recipient_name"
+                    value="{{ form.recipient_name.value|default:'' }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                    placeholder="Nhập tên người nhận" required>
             </div>
-        </div>
-        
-        <div class="mb-4">
-            <label for="id_city" class="block text-gray-700 mb-2">City</label>
-            {{ form.city.errors }}
-            <input type="text" name="city" id="id_city" value="{{ form.city.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="mb-6">
+
+            <!-- Phone Number -->
+            <div>
+                <label for="id_phone_number" class="block text-sm font-medium text-gray-700 mb-1">Số Điện Thoại</label>
+                <input type="text" name="phone_number" id="id_phone_number"
+                    value="{{ form.phone_number.value|default:'' }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                    pattern="[0-9]{10}" title="Số điện thoại phải đúng 10 chữ số" placeholder="Nhập số điện thoại"
+                    required>
+            </div>
+
+            <!-- Street Address -->
+            <div>
+                <label for="id_street_address" class="block text-sm font-medium text-gray-700 mb-1">Địa Chỉ
+                    Đường</label>
+                <input type="text" name="street_address" id="id_street_address"
+                    value="{{ form.street_address.value|default:'' }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                    placeholder="Nhập địa chỉ đường" required>
+            </div>
+
+            <!-- Ward & District -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_ward" class="block text-sm font-medium text-gray-700 mb-1">Phường/Xã</label>
+                    <input type="text" name="ward" id="id_ward" value="{{ form.ward.value|default:'' }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                        placeholder="Nhập phường/xã" required>
+                </div>
+                <div>
+                    <label for="id_district" class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
+                    <input type="text" name="district" id="id_district" value="{{ form.district.value|default:'' }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                        placeholder="Nhập quận/huyện" required>
+                </div>
+            </div>
+
+            <!-- City -->
+            <div>
+                <label for="id_city" class="block text-sm font-medium text-gray-700 mb-1">Thành Phố</label>
+                <input type="text" name="city" id="id_city" value="{{ form.city.value|default:'' }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                    placeholder="Nhập thành phố" required>
+            </div>
+
+            <!-- Set as Default -->
             <div class="flex items-center">
-                <input type="checkbox" name="is_default" id="id_is_default" {% if form.is_default.value %}checked{% endif %} class="mr-2">
-                <label for="id_is_default">Set as default address</label>
+                <!-- prettier-ignore --><input type="checkbox" name="is_default"
+                    id="id_is_default" {% if form.is_default.value %}checked{% endif %}
+                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded transition-all">
+                    <label for="id_is_default" class="ml-2 text-sm text-gray-700">Đặt làm địa chỉ mặc định</label>
             </div>
-        </div>
-        
-        <div class="flex justify-between">
-            <a href="{% url 'users:profile' %}" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400">
-                Cancel
-            </a>
-            <button type="submit" class="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
-                Save Address
-            </button>
-        </div>
-    </form>
+
+            <!-- Buttons -->
+            <div class="flex justify-between items-center pt-4">
+                <a href="{% url 'users:profile' %}"
+                    class="bg-gray-200 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-300 transition-colors font-medium">
+                    Hủy
+                </a>
+                <button type="submit"
+                    class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-6 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium shadow-md hover:shadow-lg">
+                    Lưu Địa Chỉ
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validation JavaScript cho số điện thoại
+    document.getElementById('addressForm').addEventListener('submit', function (event) {
+        const phoneInput = document.getElementById('id_phone_number');
+        // Updated regex to allow leading 0 and exactly 10 digits
+        const phonePattern = /^0[0-9]{9}$/;
+        const phoneValue = phoneInput.value.trim(); // Trim whitespace
+
+        // Reset border color first
+        phoneInput.classList.remove('border-red-500', 'focus:ring-red-500');
+        phoneInput.classList.add('border-gray-300', 'focus:ring-orange-500');
+
+
+        if (!phonePattern.test(phoneValue)) {
+            // Prevent form submission
+            event.preventDefault();
+
+            // Show an alert (you might want a more user-friendly notification system)
+            alert('Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 chữ số, bắt đầu bằng số 0.');
+
+            // Add error styling and focus
+            phoneInput.classList.remove('border-gray-300', 'focus:ring-orange-500');
+            phoneInput.classList.add('border-red-500', 'focus:ring-red-500'); // Add red border and focus ring
+            phoneInput.focus(); // Focus the input field
+        }
+    });
+
+    // Optional: Remove error border on input change for better UX
+    document.getElementById('id_phone_number').addEventListener('input', function () {
+        // Check if the error class is present before removing
+        if (this.classList.contains('border-red-500')) {
+            this.classList.remove('border-red-500', 'focus:ring-red-500');
+            this.classList.add('border-gray-300', 'focus:ring-orange-500');
+        }
+    });
+</script>
 {% endblock %}

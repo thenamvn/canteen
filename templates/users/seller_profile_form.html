@@ -1,46 +1,122 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Edit Seller Profile | Canteen{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/seller_profile_form.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">Edit Seller Profile</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        
-        <div class="mb-4">
-            <label for="id_shop_name" class="block text-gray-700 mb-2">Shop Name</label>
-            {{ form.shop_name.errors }}
-            <input type="text" name="shop_name" id="id_shop_name" value="{{ form.shop_name.value|default:'' }}" class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="mb-4">
-            <label for="id_shop_description" class="block text-gray-700 mb-2">Shop Description</label>
-            {{ form.shop_description.errors }}
-            <textarea name="shop_description" id="id_shop_description" rows="4" class="w-full px-3 py-2 border rounded-md">{{ form.shop_description.value|default:'' }}</textarea>
-        </div>
-        
-        <div class="mb-6">
-            <label for="id_shop_logo" class="block text-gray-700 mb-2">Shop Logo</label>
-            {{ form.shop_logo.errors }}
-            {% if form.instance.shop_logo %}
-            <div class="mb-2">
-                <img src="{{ form.instance.shop_logo.url }}" alt="Current Logo" class="w-32 h-32 object-cover rounded-lg">
-                <p class="text-sm text-gray-500 mt-1">Current Logo</p>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg transform transition-all hover:shadow-xl form-container tilt-card" data-tilt data-tilt-max="5" data-tilt-speed="400">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Chỉnh Sửa Hồ Sơ Seller</h2>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="sellerProfileForm">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            {# Hiển thị lỗi toàn form #}
+            {% if form.errors %}
+            <div class="mb-4 animate-fade-in">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+                    <strong class="font-bold">Có lỗi xảy ra!</strong>
+                    <ul class="list-disc pl-5 mt-2 text-sm">
+                        {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ error|escape }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                        <li>{{ error|escape }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
             {% endif %}
-            <input type="file" name="shop_logo" id="id_shop_logo" class="w-full">
-        </div>
-        
-        <div class="flex justify-between">
-            <a href="{% url 'seller:dashboard' %}" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400">
-                Cancel
-            </a>
-            <button type="submit" class="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
-                Save Profile
-            </button>
-        </div>
-    </form>
+
+            <!-- Shop Name -->
+            <div>
+                <label for="id_shop_name" class="block text-sm font-medium text-gray-700 mb-1">Tên Cửa Hàng</label>
+                {{ form.shop_name.errors }}
+                <input type="text" name="shop_name" id="id_shop_name" value="{{ form.shop_name.value|default:'' }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                       placeholder="Nhập tên cửa hàng" required>
+            </div>
+
+            <!-- Shop Description -->
+            <div>
+                <label for="id_shop_description" class="block text-sm font-medium text-gray-700 mb-1">Mô Tả Cửa Hàng</label>
+                {{ form.shop_description.errors }}
+                <textarea name="shop_description" id="id_shop_description" rows="4"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-400"
+                          placeholder="Nhập mô tả cửa hàng">{{ form.shop_description.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Shop Logo -->
+            <div>
+                <label for="id_shop_logo" class="block text-sm font-medium text-gray-700 mb-1">Logo Cửa Hàng</label>
+                {{ form.shop_logo.errors }}
+                {% if form.instance.shop_logo %}
+                <div class="mb-4">
+                    <img src="{{ form.instance.shop_logo.url }}" alt="Current Logo"
+                         class="w-32 h-32 object-cover rounded-lg shadow-sm">
+                    <p class="text-sm text-gray-500 mt-1">Logo hiện tại</p>
+                </div>
+                {% endif %}
+                <input type="file" name="shop_logo" id="id_shop_logo" accept="image/*"
+                       class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-orange-50 file:text-orange-600 file:hover:bg-orange-100 transition-all">
+                <p class="text-sm text-gray-500 mt-1">Tải lên logo rõ nét (khuyến nghị: 200x200px)</p>
+                <div id="logoPreview" class="mt-2 hidden">
+                    <img id="previewImage" class="w-32 h-32 object-cover rounded-lg shadow-sm" alt="Logo Preview">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-between items-center">
+                <a href="{% url 'seller:dashboard' %}" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-300 transition-colors font-medium">
+                    Hủy
+                </a>
+                <button type="submit" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-6 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium ripple-button">
+                    Lưu Hồ Sơ
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+<script>
+    // Logo Preview
+    const logoInput = document.getElementById('id_shop_logo');
+    const logoPreview = document.getElementById('logoPreview');
+    const previewImage = document.getElementById('previewImage');
+
+    logoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                logoPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            logoPreview.classList.add('hidden');
+        }
+    });
+
+    // Form Validation
+    document.getElementById('sellerProfileForm').addEventListener('submit', function(event) {
+        const shopNameInput = document.getElementById('id_shop_name');
+        if (!shopNameInput.value.trim()) {
+            event.preventDefault();
+            alert('Tên cửa hàng không được để trống.');
+            shopNameInput.focus();
+        }
+    });
+</script>
 {% endblock %}

@@ -1,106 +1,180 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Home | Canteen{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="mb-8">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">Categories</h2>
-        <a href="#" class="text-orange-500 hover:underline">View All</a>
+<!-- Hero Section with Parallax -->
+<section id="hero" class="relative bg-cover bg-center h-screen flex items-center justify-center text-center parallax-bg"
+         {# --- REPLACED IMAGE URL --- #}
+         style="background-image: url('https://placehold.co/1920x1080/FF8C00/');">
+         {# Previous: url('https://images.unsplash.com/photo-1504672281656-e3e7f4ad0245?q=80&w=1920&auto=format&fit=crop'); #}
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20"></div>
+    <div class="relative z-10">
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 animate-hero-title">Thưởng Thức Ẩm Thực Cùng Canteen</h1>
+        <p class="text-xl text-gray-200 mb-8 animate-hero-subtitle">Món ngon giao tận nơi, nhanh chóng và tiện lợi!</p>
+        <a href="#featured-products"
+           class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-10 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium tilt-button"
+           data-tilt data-tilt-max="15" data-tilt-speed="400">Khám Phá Menu</a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <!-- Floating 3D Icons -->
+    <div class="absolute top-20 left-10 z-20 floating-icon">
+        {# --- REPLACED IMAGE URL --- #}
+        <img src="https://placehold.co/64x64/FFA500/white?text=Pizza" alt="Pizza Icon" class="w-16 h-16">
+        {# Previous: src="https://img.icons8.com/3d-fluent/48/pizza.png" #}
+    </div>
+    <div class="absolute bottom-20 right-10 z-20 floating-icon">
+         {# --- REPLACED IMAGE URL --- #}
+        <img src="https://placehold.co/64x64/FF7F50/white?text=Burger" alt="Burger Icon" class="w-16 h-16">
+        {# Previous: src="https://img.icons8.com/3d-fluent/48/hamburger.png" #}
+    </div>
+</section>
+
+<!-- Categories Section with 3D Flip Cards -->
+<section class="container mx-auto px-4 py-16" id="categories">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-4xl font-bold text-gray-800">Danh Mục</h2>
+        <a href="#" class="text-orange-500 hover:text-orange-600 font-medium transition-colors">Xem Tất Cả</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
         {% for category in categories %}
-        <a href="{% url 'products:category' category.slug %}" class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-            {% if category.image %}
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-32 object-cover">
-            {% else %}
-            <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
-                <span class="text-gray-500">No image</span>
+        <div class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front bg-white rounded-lg shadow-lg overflow-hidden">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-32 object-cover">
+                    {% else %}
+                    {# --- REPLACED FALLBACK IMAGE URL --- #}
+                    <img src="https://placehold.co/400x300/FFD700/black?text=Category: {{ category.name|slice:":10" }}"
+                         alt="{{ category.name }}" class="w-full h-32 object-cover">
+                    {# Previous: src="https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?q=80&w=400&auto=format&fit=crop" #}
+                    {% endif %}
+                    <div class="p-4 text-center">
+                        <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
+                    </div>
+                </div>
+                <div class="flip-card-back bg-orange-500 text-white rounded-lg shadow-lg flex items-center justify-center">
+                    <a href="{% url 'products:category' category.slug %}" class="font-medium">Xem {{ category.name }}</a>
+                </div>
             </div>
-            {% endif %}
-            <div class="p-4 text-center">
-                <h3 class="font-semibold">{{ category.name }}</h3>
-            </div>
-        </a>
+        </div>
         {% empty %}
         <div class="col-span-full text-center py-8">
-            <p class="text-gray-500">No categories available.</p>
+            <p class="text-gray-500">Không có danh mục nào.</p>
         </div>
         {% endfor %}
     </div>
-</div>
+</section>
 
-<div>
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">Featured Products</h2>
+<!-- Featured Products Section with 3D Tilt -->
+<section id="featured-products" class="container mx-auto px-4 py-16 bg-gray-50">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-4xl font-bold text-gray-800">Sản Phẩm Nổi Bật</h2>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% for product in products %}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden tilt-card" data-tilt data-tilt-max="10" data-tilt-speed="400">
             <a href="{% url 'products:product_detail' product.slug %}">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
-                {% else %}
-                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <span class="text-gray-500">No image</span>
+                <div class="relative overflow-hidden">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                         class="w-full h-48 object-cover transform hover:scale-110 transition-transform duration-500">
+                    {% else %}
+                     {# --- REPLACED FALLBACK IMAGE URL --- #}
+                    <img src="https://placehold.co/400x350/FA8072/white?text=Product: {{ product.name|slice:":10" }}"
+                         alt="{{ product.name }}"
+                         class="w-full h-48 object-cover transform hover:scale-110 transition-transform duration-500">
+                    {# Previous: src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop" #}
+                    {% endif %}
+                    <div class="absolute inset-0 bg-black/10 glossy-overlay"></div>
                 </div>
-                {% endif %}
             </a>
             <div class="p-4">
                 <a href="{% url 'products:product_detail' product.slug %}" class="block mb-2">
-                    <h3 class="font-semibold text-lg">{{ product.name }}</h3>
+                    <h3 class="font-semibold text-lg text-gray-800 hover:text-orange-600 transition-colors">{{ product.name }}</h3>
                 </a>
-                <p class="text-orange-500 font-bold mb-2">{{ product.price }} VND</p>
+                <p class="text-orange-500 font-bold mb-4">{{ product.price }} VND</p>
                 <form method="post" action="{% url 'cart:cart_add' product.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
-                        Add to Cart
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium ripple-button">
+                        Thêm Vào Giỏ Hàng
                     </button>
                 </form>
             </div>
         </div>
         {% empty %}
         <div class="col-span-full text-center py-8">
-            <p class="text-gray-500">No products available.</p>
+            <p class="text-gray-500">Không có sản phẩm nào.</p>
         </div>
         {% endfor %}
     </div>
-</div>
+</section>
 
+<!-- Pagination with 3D Buttons -->
 {% if is_paginated %}
-<div class="flex justify-center mt-8">
-    <ul class="flex space-x-2">
-        {% if page_obj.has_previous %}
-        <li>
-            <a href="?page=1" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">&laquo; First</a>
-        </li>
-        <li>
-            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Previous</a>
-        </li>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-center">
+        <ul class="flex space-x-2">
+            {% if page_obj.has_previous %}
             <li>
-                <span class="px-3 py-1 bg-orange-500 text-white border rounded-md">{{ num }}</span>
+                <a href="?page=1"
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
+                    « Đầu
+                </a>
             </li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
             <li>
-                <a href="?page={{ num }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">{{ num }}</a>
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
+                    Trước
+                </a>
             </li>
             {% endif %}
-        {% endfor %}
 
-        {% if page_obj.has_next %}
-        <li>
-            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Next</a>
-        </li>
-        <li>
-            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 bg-white border rounded-md hover:bg-gray-100">Last &raquo;</a>
-        </li>
-        {% endif %}
-    </ul>
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li>
+                    <span class="px-4 py-2 bg-orange-500 text-white border border-orange-500 rounded-full transform rotate-3">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li>
+                    <a href="?page={{ num }}"
+                       class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li>
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
+                    Tiếp
+                </a>
+            </li>
+            <li>
+                <a href="?page={{ page_obj.paginator.num_pages }}"
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
+                    Cuối »
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+<script src="{% static 'js/home.js' %}"></script>
 {% endblock %}

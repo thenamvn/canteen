@@ -1,0 +1,96 @@
+/* Tùy chỉnh biểu mẫu hồ sơ seller */
+.form-container {
+    font-family: 'Inter', sans-serif;
+    perspective: 1000px;
+    /* Cho phép hiệu ứng 3D */
+}
+
+/* Hiệu ứng hover cho thẻ form */
+.form-container {
+    transition: all 0.3s ease;
+}
+
+/* Tùy chỉnh input và textarea */
+input[type="text"],
+textarea {
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+/* Tùy chỉnh nút */
+button,
+a {
+    transition: all 0.3s ease;
+}
+
+/* Hiệu ứng fade-in cho thông báo lỗi */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ripple Effect cho nút */
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1);
+    transform-origin: center;
+    animation: ripple 0.6s ease-out;
+}
+
+.ripple-button:active::after {
+    opacity: 1;
+    transform: scale(0);
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(100);
+        opacity: 0;
+    }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 640px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+
+    .tilt-card {
+        transform: none !important;
+        /* Vô hiệu hóa 3D trên mobile */
+    }
+}
