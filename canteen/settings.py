@@ -84,14 +84,12 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "canteen_db",
-        "USER": "canteen_user",
-        "PASSWORD": "123456",
-        "HOST": "127.0.0.1",  # Thử '127.0.0.1' hoặc 'host.docker.internal' nếu lỗi
-        "PORT": "3309",
+        "USER": "avnadmin",
+        "PASSWORD": "AVNS_o37osaDWZD1EF88jaUC",
+        "HOST": "mysql-3ef2466b-ntnhacker1-9477.d.aivencloud.com",
+        "PORT": "19044",
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            "auth_plugin": "mysql_native_password",
-            "connect_timeout": 10,
         },
     }
 }

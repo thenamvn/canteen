@@ -39,7 +39,7 @@
                     <td class="px-6 py-4 text-right">
                         <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="flex justify-end items-center">
                             {% csrf_token %}
-                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="w-16 px-2 py-1 border rounded-md text-center">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="w-16 px-2 py-1 border rounded-md text-center" required>
                             <input type="hidden" name="override" value="True">
                             <button type="submit" class="ml-2 text-sm bg-gray-200 hover:bg-gray-300 py-1 px-2 rounded">
                                 Update

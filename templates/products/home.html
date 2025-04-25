@@ -1,175 +1,124 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block title %}Home | Canteen{% endblock %}
-
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section with Parallax -->
-<section id="hero" class="relative bg-cover bg-center h-screen flex items-center justify-center text-center parallax-bg"
-         {# --- REPLACED IMAGE URL --- #}
-         style="background-image: url('https://placehold.co/1920x1080/FF8C00/');">
-         {# Previous: url('https://images.unsplash.com/photo-1504672281656-e3e7f4ad0245?q=80&w=1920&auto=format&fit=crop'); #}
-    <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20"></div>
-    <div class="relative z-10">
-        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 animate-hero-title">Thưởng Thức Ẩm Thực Cùng Canteen</h1>
-        <p class="text-xl text-gray-200 mb-8 animate-hero-subtitle">Món ngon giao tận nơi, nhanh chóng và tiện lợi!</p>
-        <a href="#featured-products"
-           class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-10 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium tilt-button"
-           data-tilt data-tilt-max="15" data-tilt-speed="400">Khám Phá Menu</a>
-    </div>
-    <!-- Floating 3D Icons -->
-    <div class="absolute top-20 left-10 z-20 floating-icon">
-        {# --- REPLACED IMAGE URL --- #}
-        <img src="https://placehold.co/64x64/FFA500/white?text=Pizza" alt="Pizza Icon" class="w-16 h-16">
-        {# Previous: src="https://img.icons8.com/3d-fluent/48/pizza.png" #}
-    </div>
-    <div class="absolute bottom-20 right-10 z-20 floating-icon">
-         {# --- REPLACED IMAGE URL --- #}
-        <img src="https://placehold.co/64x64/FF7F50/white?text=Burger" alt="Burger Icon" class="w-16 h-16">
-        {# Previous: src="https://img.icons8.com/3d-fluent/48/hamburger.png" #}
+
+<!-- Hero Section -->
+<section id="hero" class="relative h-[90vh] bg-cover bg-center flex flex-col justify-center items-center text-center" style="background-image: url('https://placehold.co/1920x1080/333333/ffffff?text=The+Favorite+Burger+Recipes');">
+    <div class="bg-black/60 absolute inset-0"></div>
+    <div class="relative z-10 px-6">
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4">THE FAVORITE BURGER RECIPES</h1>
+        <p class="text-lg text-gray-300">A food blog about food & life</p>
     </div>
 </section>
 
-<!-- Categories Section with 3D Flip Cards -->
-<section class="container mx-auto px-4 py-16" id="categories">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-4xl font-bold text-gray-800">Danh Mục</h2>
-        <a href="#" class="text-orange-500 hover:text-orange-600 font-medium transition-colors">Xem Tất Cả</a>
+<!-- Stories Section -->
+<section id="stories" class="max-w-7xl mx-auto px-4 py-16 space-y-16">
+
+    <!-- Story 1 -->
+    <div class="relative">
+        <div class="md:flex">
+            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/555/FFF?text=Burger+Story+1');"></div>
+            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">THE PERFECT BURGER</h2>
+                <p class="text-sm text-gray-500 mb-2">By Christos on June 23, 2017 in Burger Food</p>
+                <p class="text-gray-700 mb-6">
+                    While she stood looking eagerly at the strange and beautiful sights, she noticed coming toward her a group of the queerest people she had ever seen...
+                </p>
+                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
+            </div>
+        </div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+
+    <!-- Story 2 -->
+    <div class="relative">
+        <div class="md:flex flex-row-reverse">
+            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/666/FFF?text=Burger+Story+2');"></div>
+            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">GREEN-CHILE BURGERS WITH FRIED EGGS</h2>
+                <p class="text-sm text-gray-500 mb-2">By Christos on June 22, 2017 in Food</p>
+                <p class="text-gray-700 mb-6">
+                    Porchetta pancetta jerky, pig turkey landjaeger bacon. Kielbasa pork belly brisket sirloin...
+                </p>
+                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story 3 -->
+    <div class="relative">
+        <div class="md:flex">
+            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/777/FFF?text=Burger+Story+3');"></div>
+            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">BACON BURGERS ON BRIOCHE</h2>
+                <p class="text-sm text-gray-500 mb-2">By Christos on June 21, 2017 in Food</p>
+                <p class="text-gray-700 mb-6">
+                    Bacon ipsum dolor amet beef ribs brisket hamburger sausage ribeye. Short ribs boudin shank ham hock...
+                </p>
+                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- Categories Section -->
+<section id="categories" class="max-w-7xl mx-auto px-4 py-16">
+    <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Danh Mục</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {% for category in categories %}
-        <div class="flip-card">
-            <div class="flip-card-inner">
-                <div class="flip-card-front bg-white rounded-lg shadow-lg overflow-hidden">
-                    {% if category.image %}
-                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-32 object-cover">
-                    {% else %}
-                    {# --- REPLACED FALLBACK IMAGE URL --- #}
-                    <img src="https://placehold.co/400x300/FFD700/black?text=Category: {{ category.name|slice:":10" }}"
-                         alt="{{ category.name }}" class="w-full h-32 object-cover">
-                    {# Previous: src="https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?q=80&w=400&auto=format&fit=crop" #}
-                    {% endif %}
-                    <div class="p-4 text-center">
-                        <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
-                    </div>
-                </div>
-                <div class="flip-card-back bg-orange-500 text-white rounded-lg shadow-lg flex items-center justify-center">
-                    <a href="{% url 'products:category' category.slug %}" class="font-medium">Xem {{ category.name }}</a>
-                </div>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-40 object-cover">
+            {% else %}
+            <img src="https://placehold.co/400x300/FFD700/black?text=Category" alt="Category" class="w-full h-40 object-cover">
+            {% endif %}
+            <div class="p-4 text-center">
+                <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
             </div>
         </div>
         {% empty %}
-        <div class="col-span-full text-center py-8">
-            <p class="text-gray-500">Không có danh mục nào.</p>
-        </div>
+        <p class="col-span-full text-center text-gray-500">Không có danh mục nào.</p>
         {% endfor %}
     </div>
 </section>
 
-<!-- Featured Products Section with 3D Tilt -->
-<section id="featured-products" class="container mx-auto px-4 py-16 bg-gray-50">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-4xl font-bold text-gray-800">Sản Phẩm Nổi Bật</h2>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for product in products %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden tilt-card" data-tilt data-tilt-max="10" data-tilt-speed="400">
-            <a href="{% url 'products:product_detail' product.slug %}">
-                <div class="relative overflow-hidden">
+<!-- Featured Products Section -->
+<section id="featured-products" class="bg-gray-100 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Sản Phẩm Nổi Bật</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition">
+                <a href="{% url 'products:product_detail' product.slug %}">
                     {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
-                         class="w-full h-48 object-cover transform hover:scale-110 transition-transform duration-500">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
                     {% else %}
-                     {# --- REPLACED FALLBACK IMAGE URL --- #}
-                    <img src="https://placehold.co/400x350/FA8072/white?text=Product: {{ product.name|slice:":10" }}"
-                         alt="{{ product.name }}"
-                         class="w-full h-48 object-cover transform hover:scale-110 transition-transform duration-500">
-                    {# Previous: src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop" #}
+                    <img src="https://placehold.co/400x350/FA8072/white?text=Product" alt="Product" class="w-full h-48 object-cover">
                     {% endif %}
-                    <div class="absolute inset-0 bg-black/10 glossy-overlay"></div>
-                </div>
-            </a>
-            <div class="p-4">
-                <a href="{% url 'products:product_detail' product.slug %}" class="block mb-2">
-                    <h3 class="font-semibold text-lg text-gray-800 hover:text-orange-600 transition-colors">{{ product.name }}</h3>
                 </a>
-                <p class="text-orange-500 font-bold mb-4">{{ product.price }} VND</p>
-                <form method="post" action="{% url 'cart:cart_add' product.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit"
-                            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all font-medium ripple-button">
-                        Thêm Vào Giỏ Hàng
-                    </button>
-                </form>
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-gray-800 mb-2">{{ product.name }}</h3>
+                    <p class="text-orange-500 font-bold mb-4">{{ product.price }} VND</p>
+                    <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-full hover:bg-orange-600 transition">Thêm vào giỏ</button>
+                    </form>
+                </div>
             </div>
+            {% empty %}
+            <p class="col-span-full text-center text-gray-500">Không có sản phẩm nào.</p>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-span-full text-center py-8">
-            <p class="text-gray-500">Không có sản phẩm nào.</p>
-        </div>
-        {% endfor %}
     </div>
 </section>
 
-<!-- Pagination with 3D Buttons -->
-{% if is_paginated %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-center">
-        <ul class="flex space-x-2">
-            {% if page_obj.has_previous %}
-            <li>
-                <a href="?page=1"
-                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
-                    « Đầu
-                </a>
-            </li>
-            <li>
-                <a href="?page={{ page_obj.previous_page_number }}"
-                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
-                    Trước
-                </a>
-            </li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <li>
-                    <span class="px-4 py-2 bg-orange-500 text-white border border-orange-500 rounded-full transform rotate-3">{{ num }}</span>
-                </li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li>
-                    <a href="?page={{ num }}"
-                       class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
-                        {{ num }}
-                    </a>
-                </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li>
-                <a href="?page={{ page_obj.next_page_number }}"
-                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
-                    Tiếp
-                </a>
-            </li>
-            <li>
-                <a href="?page={{ page_obj.paginator.num_pages }}"
-                   class="px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-orange-50 hover:text-orange-600 hover:rotate-3 transition-all transform-gpu">
-                    Cuối »
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </div>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}
