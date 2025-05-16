@@ -8,8 +8,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
     
-    <h1 class="text-2xl font-bold mb-2">Order Placed Successfully!</h1>
-    <p class="text-gray-600 mb-6">Thank you for your purchase. Your order has been received and is being processed.</p>
+    <h1 class="text-2xl font-bold mb-2">Đặt hàng thành công!</h1>
+    <p class="text-gray-600 mb-6">Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được nhận và đang được xử lý.</p>
     
     <div class="bg-gray-50 p-4 rounded-md mb-6">
         <div class="flex justify-between mb-2">
@@ -17,22 +17,22 @@
             <span class="font-medium">#{{ order.id }}</span>
         </div>
         <div class="flex justify-between mb-2">
-            <span class="text-gray-600">Total Amount:</span>
+            <span class="text-gray-600">Tổng tiền:</span>
             <span class="font-medium">{{ order.total_amount }} VND</span>
         </div>
         <div class="flex justify-between mb-2">
-            <span class="text-gray-600">Payment Method:</span>
-            <span class="font-medium">Cash on Delivery</span>
+            <span class="text-gray-600">Thanh toán:</span>
+            <span class="font-medium">Tiền mặt</span>
         </div>
         <div class="flex justify-between">
-            <span class="text-gray-600">Date:</span>
+            <span class="text-gray-600">Ngày đặt hàng:</span>
             <span class="font-medium">{{ order.created_at|date:"F d, Y" }}</span>
         </div>
     </div>
     
     <div class="space-x-4">
-        <a href="{% url 'orders:order_detail' order.id %}" class="text-orange-500 hover:underline">View Order Details</a>
-        <a href="{% url 'products:home' %}" class="text-orange-500 hover:underline">Continue Shopping</a>
+        <a href="{% url 'orders:order_detail' order.id %}" class="text-orange-500 hover:underline">Xem chi tiết đơn hàng</a>
+        <a href="{% url 'products:home' %}" class="text-orange-500 hover:underline">Tiếp tục mua sắm</a>
     </div>
 </div>
 {% endblock %}

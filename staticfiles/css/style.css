@@ -34,3 +34,36 @@
     transform: translateY(-0.25rem);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+/* Tùy chỉnh thêm cho giao diện hiện đại */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Hiệu ứng cho header khi cuộn */
+header {
+    transition: all 0.3s ease;
+}
+
+header.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Tùy chỉnh input tìm kiếm */
+input:focus {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+/* Hiệu ứng hover cho liên kết */
+nav a:hover,
+footer a:hover {
+    transform: translateY(-1px);
+}
+
+/* Responsive cho tìm kiếm trên mobile */
+@media (max-width: 768px) {
+    .search-form {
+        display: none;
+    }
+}

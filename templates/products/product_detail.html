@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 {% block title %}{{ product.name }} | Canteen{% endblock %}
 
 {% block content %}
+
 <div class="mb-6">
     <nav class="text-sm breadcrumbs">
         <ol class="flex items-center space-x-1">
@@ -33,10 +34,16 @@
         
         <div class="p-6">
             <h1 class="text-3xl font-bold mb-2">{{ product.name }}</h1>
-            <p class="text-gray-500 mb-4">Sold by: {{ product.seller.username }}</p>
+            <!-- <p class="text-gray-500 mb-4">Sold by: {{ product.seller.username }}</p> -->
+            <div class="mb-4">
+                <p class="text-gray-600">Người bán:</p>
+                <a href="{% url 'users:shop_profile' product.seller.seller_profile.pk %}" class="font-medium text-orange-600 hover:text-orange-700">
+                    {{ product.seller.seller_profile.shop_name }}
+                </a>
+            </div>
             
             <div class="mb-4">
-                <span class="text-2xl font-bold text-orange-500">{{ product.price }} VND</span>
+                <span class="text-2xl font-bold text-orange-500">{{ product.price|intcomma }} VND</span>
             </div>
             
             <div class="mb-6">
@@ -62,7 +69,7 @@
                 {% csrf_token %}
                 <div class="flex items-center mb-4">
                     <label for="quantity" class="mr-2">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}" class="w-20 px-3 py-2 border rounded-md text-center">
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}" class="w-20 px-3 py-2 border rounded-md text-center" required>
                 </div>
                 <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-md font-medium">
                     Add to Cart

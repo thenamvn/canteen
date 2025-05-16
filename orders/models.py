@@ -2,7 +2,8 @@ from django.db import models
 from users.models import User, Address
 from products.models import Product
 from django.urls import reverse
-
+from django.utils import timezone
+from datetime import timedelta
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -40,6 +41,13 @@ class Order(models.Model):
             if code == self.payment_method:
                 return label
         return self.payment_method
+    
+    def can_be_cancelled_by_user(self):
+        if self.status not in ['pending', 'processing']:
+            return False
+        if self.status == 'processing' and timezone.now() > self.created_at + timedelta(hours=24):
+            return False
+        return True
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

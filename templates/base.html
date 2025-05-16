@@ -1,94 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Canteen - Online Food Delivery{% endblock %}</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome cho icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     {% load static %}
+    <!-- CSS tùy chỉnh -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="flex flex-col min-h-screen bg-gray-50">
+
+<body class="flex flex-col min-h-screen bg-gray-100 font-sans">
     <!-- Header -->
-    <header class="bg-orange-500 text-white shadow-md">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div>
-                <a href="{% url 'products:home' %}" class="text-2xl font-bold">Canteen</a>
-            </div>
-            <div class="flex-1 px-8">
-                <form action="{% url 'products:home' %}" method="get" class="max-w-md mx-auto">
-                    <div class="relative">
-                        <input type="text" name="q" placeholder="Search for food..." class="w-full py-2 px-4 rounded-full text-gray-700">
-                        <button type="submit" class="absolute right-0 top-0 bottom-0 bg-orange-600 px-4 rounded-r-full">
-                            Search
-                        </button>
-                    </div>
+    <header class="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'products:home' %}"
+                class="text-3xl font-bold text-orange-600 hover:text-orange-700 transition-colors">
+                Canteen
+            </a>
+            <!-- Tìm kiếm -->
+            <div class="flex-1 max-w-md mx-6 hidden md:block">
+                <form action="{% url 'products:home' %}" method="get" class="relative">
+                    <input type="text" name="q" placeholder="Tìm món ăn..."
+                        class="w-full py-2 px-4 pr-12 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700 transition-all">
+                    <button type="submit"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-600">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
             </div>
-            <nav class="flex items-center space-x-4">
-                <a href="{% url 'cart:cart_detail' %}" class="flex items-center">
-                    <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <span class="font-medium">Cart ({{ cart|length }})</span>
+            <!-- Điều hướng -->
+            <nav class="flex items-center space-x-6">
+                <!-- Giỏ hàng -->
+                <a href="{% url 'cart:cart_detail' %}"
+                    class="flex items-center text-gray-700 hover:text-orange-600 transition-colors">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    <span class="font-medium">Giỏ hàng ({{ cart|length }})</span> {# Make sure 'cart' is available in context #}
                 </a>
+                <!-- Menu người dùng -->
                 {% if user.is_authenticated %}
-                    <div class="relative group">
-                        <button class="flex items-center focus:outline-none">
-                            <span>{{ user.username }}</span>
-                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden group-hover:block z-10">
-                            {% if user.is_seller %}
-                            <a href="{% url 'seller:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Seller Dashboard</a>
-                            {% endif %}
-                            <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
-                            <a href="{% url 'orders:order_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
-                            <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
-                        </div>
+                <div class="relative">
+                    <button id="userMenuButton"
+                        class="flex items-center text-gray-700 hover:text-orange-600 focus:outline-none transition-colors">
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden z-50 py-1"> {# Added py-1 for better spacing if needed #}
+                        {% if user.is_seller %} {# Assuming you have a way to check if user is seller #}
+                        <a href="{% url 'seller:dashboard' %}" {# Assuming you have a 'seller' app with 'dashboard' url #}
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">Bảng
+                            điều khiển Seller</a>
+                        {% endif %}
+                        <a href="{% url 'users:profile' %}"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">Hồ
+                            sơ</a>
+                        <a href="{% url 'orders:order_list' %}" {# Assuming you have an 'orders' app with 'order_list' url #}
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">Đơn
+                            hàng</a>
+
+                        {# --- MODIFIED LOGOUT SECTION --- #}
+                        <form method="post" action="{% url 'users:logout' %}" class="block">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 focus:outline-none">
+                                Đăng xuất
+                            </button>
+                        </form>
+                        {# --- END MODIFIED LOGOUT SECTION --- #}
+
                     </div>
+                </div>
                 {% else %}
-                    <a href="{% url 'users:login' %}" class="font-medium">Login</a>
-                    <a href="{% url 'users:register' %}" class="bg-white text-orange-500 px-4 py-2 rounded-md font-medium">Register</a>
+                <a href="{% url 'users:login' %}"
+                    class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Đăng nhập</a>
+                <a href="{% url 'users:register' %}"
+                    class="bg-orange-600 text-white px-4 py-2 rounded-full hover:bg-orange-700 transition-colors font-medium">Đăng
+                    ký</a>
                 {% endif %}
             </nav>
         </div>
     </header>
 
     <!-- Main content -->
-    <main class="flex-grow container mx-auto px-4 py-6">
+    <main class="flex-grow container mx-auto px-4 pt-24 pb-8">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="p-4 rounded {% if message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-auto">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex flex-wrap justify-between">
-                <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <h3 class="text-xl font-bold mb-2">Canteen</h3>
-                    <p>The best food delivery service for your daily needs.</p>
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Thông tin Canteen -->
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-orange-500">Canteen</h3>
+                    <p class="text-gray-300">Dịch vụ giao đồ ăn nhanh, tiện lợi, mang đến trải nghiệm ẩm thực tuyệt vời.
+                    </p>
                 </div>
-                <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <h3 class="text-xl font-bold mb-2">Quick Links</h3>
-                    <ul>
-                        <li><a href="{% url 'products:home' %}" class="hover:text-orange-300">Home</a></li>
-                        <li><a href="#" class="hover:text-orange-300">About Us</a></li>
-                        <li><a href="#" class="hover:text-orange-300">Contact Us</a></li>
+                <!-- Liên kết nhanh -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Liên kết nhanh</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'products:home' %}"
+                                class="text-gray-300 hover:text-orange-500 transition-colors">Trang chủ</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-orange-500 transition-colors">Về chúng tôi</a>
+                        </li>
+                        <li><a href="#" class="text-gray-300 hover:text-orange-500 transition-colors">Liên hệ</a></li>
                     </ul>
                 </div>
-                <div class="w-full md:w-1/3">
-                    <h3 class="text-xl font-bold mb-2">Contact Us</h3>
-                    <p>Email: info@canteen.com</p>
-                    <p>Phone: +123 456 7890</p>
+                <!-- Liên hệ -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Liên hệ</h3>
+                    <p class="text-gray-300">Email: info@canteen.com</p>
+                    <p class="text-gray-300">Phone: +123 456 7890</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-300 hover:text-orange-500 transition-colors"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-orange-500 transition-colors"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-orange-500 transition-colors"><i
+                                class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-gray-700 mt-6 pt-6 text-center">
-                <p>&copy; 2023 Canteen. All rights reserved.</p>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+                <p class="text-gray-400">© 2025 Canteen. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <!-- Script điều khiển dropdown -->
+    <script>
+        // Script cho header cuộn (optional styling)
+        // window.addEventListener('scroll', () => {
+        //     const header = document.querySelector('header');
+        //     if (window.scrollY > 50) {
+        //         header.classList.add('scrolled'); // Add a 'scrolled' class in your CSS for effects
+        //     } else {
+        //         header.classList.remove('scrolled');
+        //     }
+        // });
+
+        // Script cho dropdown menu
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+
+        if (userMenuButton && userMenu) {
+            userMenuButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent click from immediately propagating to document
+                userMenu.classList.toggle('hidden');
+            });
+
+            // Đóng dropdown khi nhấp ra ngoài
+            document.addEventListener('click', (event) => {
+                // Check if the menu is visible and the click was outside the button and the menu
+                if (!userMenu.classList.contains('hidden') && !userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+
+            // Optional: Đóng dropdown khi nhấp vào liên kết (<a>) trong menu
+            // This is generally good UX, but not strictly necessary for the logout form button
+            // userMenu.querySelectorAll('a').forEach(link => {
+            //     link.addEventListener('click', () => {
+            //         userMenu.classList.add('hidden');
+            //     });
+            // });
+
+            // Ensure clicking the form/button doesn't close the menu prematurely
+            userMenu.addEventListener('click', (event) => {
+                // If the click is on the submit button or within the form, let it proceed
+                // This prevents the dropdown from closing before the form submission happens
+                if (event.target.closest('form')) {
+                     // Optionally hide menu after a short delay to allow form submission
+                     // setTimeout(() => userMenu.classList.add('hidden'), 100);
+                     // Or just let the page navigation handle closing it naturally
+                } else {
+                    // If it's a link inside, hide it (if you uncomment the 'a' loop above)
+                    if(event.target.tagName === 'A'){
+                         userMenu.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    </script>
+     {% block extra_js %}{% endblock %} {# Placeholder for page-specific JS #}
 </body>
+
 </html>
