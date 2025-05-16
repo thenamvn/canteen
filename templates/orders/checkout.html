@@ -6,6 +6,16 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-6">Checkout</h1>
 
+{% if messages %}
+<div class="mb-6">
+    {% for message in messages %}
+    <div class="p-4 mb-4 rounded {% if message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <!-- Order Summary -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -43,11 +53,14 @@
                 <h3 class="text-md font-semibold mb-2">Select an existing address</h3>
                 <form method="post" id="address-form">
                     {% csrf_token %}
+                    <!-- Thêm input hidden cho form_type -->
+                    <input type="hidden" name="form_type" value="use_address">
                     <div class="space-y-3">
                         {% for address in addresses %}
                         <div class="border rounded-md p-3 {% if address.is_default %}ring-2 ring-orange-500{% endif %}">
                             <label class="flex items-start cursor-pointer">
-                                <input type="radio" name="address_id" value="{{ address.id }}" class="mt-1 mr-3" {% if address.is_default %}checked{% endif %}>
+                                <input type="radio" name="address" value="{{ address.id }}" class="mt-1 mr-3" 
+                                    {% if address.is_default or forloop.first %}checked{% endif %}>
                                 <div>
                                     <p class="font-medium">{{ address.recipient_name }} | {{ address.phone_number }}</p>
                                     <p class="text-gray-600">{{ address.street_address }}, {{ address.ward }}, {{ address.district }}, {{ address.city }}</p>
@@ -71,6 +84,8 @@
                 
             <form method="post" id="new-address-form">
                 {% csrf_token %}
+                <!-- Thêm input hidden cho form_type -->
+                <input type="hidden" name="form_type" value="create_address">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label for="id_recipient_name" class="block text-gray-700 mb-1">Recipient Name</label>
@@ -114,4 +129,17 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Kiểm tra đảm bảo có địa chỉ được chọn trước khi submit form
+    document.getElementById('address-form').addEventListener('submit', function(e) {
+        const selectedAddress = document.querySelector('input[name="address"]:checked');
+        if (!selectedAddress) {
+            e.preventDefault();
+            alert('Vui lòng chọn một địa chỉ giao hàng.');
+        }
+    });
+</script>
 {% endblock %}

@@ -8,4 +8,8 @@ urlpatterns = [
     path('success/<int:pk>/', views.order_success, name='order_success'),
     path('list/', views.OrderListView.as_view(), name='order_list'),
     path('detail/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
+    path('seller/orders/', views.seller_orders, name='seller_orders'),
+    path('seller/orders/<int:order_id>/', views.seller_order_detail, name='seller_order_detail'),
+    path('seller/orders/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
+    path('order/<int:order_id>/cancel/', views.cancel_order, name='cancel_order'),
 ]

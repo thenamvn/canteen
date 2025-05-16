@@ -14,10 +14,13 @@
         <h2 class="text-xl font-bold mb-4">Shop: {{ user.seller_profile.shop_name }}</h2>
         <ul class="space-y-2">
             <li>
-                <a href="{% url 'seller:dashboard' %}" class="text-orange-500 font-medium">Products</a>
+                <a href="{% url 'seller:dashboard' %}" class="text-orange-500 font-medium">Sản phẩm</a>
             </li>
             <li>
-                <a href="{% url 'users:seller_profile' %}" class="text-gray-600 hover:text-orange-500">Shop Settings</a>
+                <a href="{% url 'orders:seller_orders' %}" class="text-gray-600 hover:text-orange-500">Đơn hàng</a>
+            </li>
+            <li>
+                <a href="{% url 'users:seller_profile' %}" class="text-gray-600 hover:text-orange-500">Cài đặt cửa hàng</a>
             </li>
         </ul>
     </div>

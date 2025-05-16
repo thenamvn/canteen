@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import User, Address, SellerProfile
+from .models import Address, SellerProfile
 from .forms import UserRegisterForm, AddressForm, SellerProfileForm, UserLoginForm
 from django.contrib.auth.views import LoginView
+from products.models import Product
+from django.db.models import Avg, Count
 
 def register(request):
     if request.method == 'POST':
@@ -58,7 +60,7 @@ class SellerProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = SellerProfile
     form_class = SellerProfileForm
     template_name = 'users/seller_profile_form.html'
-    success_url = reverse_lazy('products:seller_dashboard')
+    success_url = reverse_lazy('seller:dashboard')
     
     def get_object(self):
         return self.request.user.seller_profile

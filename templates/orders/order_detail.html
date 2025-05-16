@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load humanize %}
+
 {% block title %}Order #{{ order.id }} | Canteen{% endblock %}
 
 {% block content %}
@@ -39,16 +41,16 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-right">{{ item.product_price }} VND</td>
+                            <td class="px-4 py-3 text-right">{{ item.product_price | intcomma}} VND</td>
                             <td class="px-4 py-3 text-right">{{ item.quantity }}</td>
-                            <td class="px-4 py-3 text-right font-medium">{{ item.get_total_price }} VND</td>
+                            <td class="px-4 py-3 text-right font-medium">{{ item.get_total_price | intcomma }} VND</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr class="bg-gray-50">
                             <td colspan="3" class="px-4 py-3 text-right font-bold">Total:</td>
-                            <td class="px-4 py-3 text-right font-bold">{{ order.total_amount }} VND</td>
+                            <td class="px-4 py-3 text-right font-bold">{{ order.total_amount | intcomma }} VND</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -81,6 +83,16 @@
                     <p class="text-gray-600">Payment Method:</p>
                     <p class="font-medium">{{ order.get_payment_method_display }}</p>
                 </div>
+                {% if order.status == 'pending' or order.status == 'processing' %}
+                <div class="mt-6">
+                    <form method="post" action="{% url 'orders:cancel_order' order.id %}" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
+                            Hủy đơn hàng
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
             </div>
         </div>
         
