@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Home | Canteen{% endblock %}
@@ -72,16 +73,18 @@
     <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Danh Mục</h2>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {% for category in categories %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition">
-            {% if category.image %}
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-40 object-cover">
-            {% else %}
-            <img src="https://placehold.co/400x300/FFD700/black?text=Category" alt="Category" class="w-full h-40 object-cover">
-            {% endif %}
-            <div class="p-4 text-center">
-                <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
+        <a href="{% url 'products:category' category.slug %}" class="block">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition">
+                {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-40 object-cover">
+                {% else %}
+                <img src="https://placehold.co/400x300/FFD700/black?text=Category" alt="Category" class="w-full h-40 object-cover">
+                {% endif %}
+                <div class="p-4 text-center">
+                    <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
+                </div>
             </div>
-        </div>
+        </a>
         {% empty %}
         <p class="col-span-full text-center text-gray-500">Không có danh mục nào.</p>
         {% endfor %}
@@ -104,12 +107,16 @@
                 </a>
                 <div class="p-4">
                     <h3 class="font-semibold text-lg text-gray-800 mb-2">{{ product.name }}</h3>
-                    <p class="text-orange-500 font-bold mb-4">{{ product.price }} VND</p>
-                    <form method="post" action="{% url 'cart:cart_add' product.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="quantity" value="1">
-                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-full hover:bg-orange-600 transition">Thêm vào giỏ</button>
-                    </form>
+                    <p class="text-orange-500 font-bold mb-4">{{ product.price|intcomma }} VND</p>
+                    {% if product.stock > 0 %}
+                        <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-full hover:bg-orange-600 transition">Thêm vào giỏ</button>
+                        </form>
+                    {% else %}
+                        <button class="w-full bg-gray-400 text-white py-2 rounded-full cursor-not-allowed" disabled>Hết hàng</button>
+                    {% endif %}
                 </div>
             </div>
             {% empty %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 {% block title %}Seller Dashboard | Canteen{% endblock %}
 
 {% block content %}
@@ -63,7 +63,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ product.price }} VND</div>
+                                <div class="text-sm text-gray-900">{{ product.price | intcomma}} VND</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ product.stock }}</div>
