@@ -10,10 +10,10 @@
         <table class="w-full">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="px-6 py-3 text-left">Product</th>
-                    <th class="px-6 py-3 text-right">Quantity</th>
-                    <th class="px-6 py-3 text-right">Unit Price</th>
-                    <th class="px-6 py-3 text-right">Price</th>
+                    <th class="px-6 py-3 text-left">Sản phẩm</th>
+                    <th class="px-6 py-3 text-right">Số lượng</th>
+                    <th class="px-6 py-3 text-right">Giá</th>
+                    <th class="px-6 py-3 text-right">Tổng giá</th>
                     <th class="px-6 py-3"></th>
                 </tr>
             </thead>
@@ -74,10 +74,10 @@
     
     <div class="mt-6 flex justify-between">
         <a href="{% url 'products:home' %}" class="bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded">
-            Continue Shopping
+            Tiếp tục mua sắm
         </a>
         <a href="{% url 'orders:checkout' %}" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
-            Proceed to Checkout
+            Thanh toán
         </a>
     </div>
 {% else %}

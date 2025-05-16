@@ -72,14 +72,14 @@
                     
                     <div class="mt-6">
                         <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
-                            Place Order
+                            Đặt hàng
                         </button>
                     </div>
                 </form>
             </div>
             
             <div class="border-t pt-6">
-                <h3 class="text-md font-semibold mb-2">Or add a new address</h3>
+                <h3 class="text-md font-semibold mb-2">hoặc thêm địa chỉ mới</h3>
             {% endif %}
                 
             <form method="post" id="new-address-form">
@@ -88,11 +88,11 @@
                 <input type="hidden" name="form_type" value="create_address">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <label for="id_recipient_name" class="block text-gray-700 mb-1">Recipient Name</label>
+                        <label for="id_recipient_name" class="block text-gray-700 mb-1">Người nhận</label>
                         {{ form.recipient_name }}
                     </div>
                     <div class="col-span-2">
-                        <label for="id_phone_number" class="block text-gray-700 mb-1">Phone Number</label>
+                        <label for="id_phone_number" class="block text-gray-700 mb-1">Số điện thoại</label>
                         {{ form.phone_number }}
                     </div>
                     <div class="col-span-2">
@@ -114,14 +114,14 @@
                     <div class="col-span-2">
                         <div class="flex items-center">
                             {{ form.is_default }}
-                            <label for="id_is_default" class="ml-2">Set as default address</label>
+                            <label for="id_is_default" class="ml-2">Đặt làm địa chỉ mặc định</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6">
                     <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
-                        Place Order with New Address
+                        Đặt hàng với địa chỉ mới
                     </button>
                 </div>
             </form>

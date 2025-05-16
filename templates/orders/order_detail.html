@@ -14,16 +14,16 @@
     <!-- Order Summary -->
     <div class="md:col-span-2">
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-lg font-bold mb-4">Order Items</h2>
+            <h2 class="text-lg font-bold mb-4">Các mặt hàng:</h2>
             
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gray-100">
-                            <th class="px-4 py-2 text-left">Product</th>
-                            <th class="px-4 py-2 text-right">Unit Price</th>
-                            <th class="px-4 py-2 text-right">Quantity</th>
-                            <th class="px-4 py-2 text-right">Total</th>
+                            <th class="px-4 py-2 text-left">Sản phẩm</th>
+                            <th class="px-4 py-2 text-right">Giá</th>
+                            <th class="px-4 py-2 text-right">Số lượng</th>
+                            <th class="px-4 py-2 text-right">Tổng tiền</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y">
@@ -49,7 +49,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-gray-50">
-                            <td colspan="3" class="px-4 py-3 text-right font-bold">Total:</td>
+                            <td colspan="3" class="px-4 py-3 text-right font-bold">Tổng tiền:</td>
                             <td class="px-4 py-3 text-right font-bold">{{ order.total_amount | intcomma }} VND</td>
                         </tr>
                     </tfoot>
@@ -80,7 +80,7 @@
                 </div>
                 
                 <div>
-                    <p class="text-gray-600">Payment Method:</p>
+                    <p class="text-gray-600">Thanh toán:</p>
                     <p class="font-medium">{{ order.get_payment_method_display }}</p>
                 </div>
                 {% if order.status == 'pending' or order.status == 'processing' %}
@@ -97,7 +97,7 @@
         </div>
         
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-lg font-bold mb-4">Shipping Address</h2>
+            <h2 class="text-lg font-bold mb-4">Địa chỉ vận chuyển</h2>
             
             <div class="space-y-2">
                 <p class="font-medium">{{ order.address.recipient_name }}</p>

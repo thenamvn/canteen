@@ -5,7 +5,7 @@
 {% block content %}
 <div class="mb-6">
     <h1 class="text-3xl font-bold mb-2">Seller Dashboard</h1>
-    <p class="text-gray-600">Manage your products and shop details</p>
+    <!-- <p class="text-gray-600">Manage your products and shop details</p> -->
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -17,7 +17,7 @@
                 <a href="{% url 'seller:dashboard' %}" class="text-orange-500 font-medium">Sản phẩm</a>
             </li>
             <li>
-                <a href="{% url 'orders:seller_orders' %}" class="text-gray-600 hover:text-orange-500">Đơn hàng</a>
+                <a href="{% url 'orders:seller_orders' %}" class="text-gray-600 hover:text-orange-500">Quản lý đơn đặt hàng</a>
             </li>
             <li>
                 <a href="{% url 'users:seller_profile' %}" class="text-gray-600 hover:text-orange-500">Cài đặt cửa hàng</a>
