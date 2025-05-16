@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, DetailView  # Thêm DetailView vào đây
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Address, SellerProfile
@@ -9,7 +9,10 @@ from .forms import UserRegisterForm, AddressForm, SellerProfileForm, UserLoginFo
 from django.contrib.auth.views import LoginView
 from products.models import Product
 from django.db.models import Avg, Count
-
+from django.core.paginator import Paginator
+from orders.models import OrderItem
+from products.models import Product, Category
+from django.urls import reverse_lazy, reverse
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -60,11 +63,59 @@ class SellerProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = SellerProfile
     form_class = SellerProfileForm
     template_name = 'users/seller_profile_form.html'
-    success_url = reverse_lazy('seller:dashboard')
     
     def get_object(self):
         return self.request.user.seller_profile
+        
+    def get_success_url(self):
+        return reverse_lazy('users:shop_profile', kwargs={'pk': self.object.pk})
 
 class CustomLoginView(LoginView):
     form_class = UserLoginForm
     template_name = 'users/login.html'
+
+# Thêm view sau class CustomLoginView
+class ShopProfileView(DetailView):
+    model = SellerProfile
+    template_name = 'users/shop_profile.html'
+    context_object_name = 'shop'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        shop = self.get_object()
+        
+        # Lấy sản phẩm của shop
+        products = Product.objects.filter(
+            seller=shop.user,
+            is_available=True
+        ).order_by('-created_at')
+        
+        # Phân trang nếu cần
+        paginator = Paginator(products, 12)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        # Lấy thống kê của shop
+        stats = {
+            'product_count': products.count(),
+            'orders_count': OrderItem.objects.filter(product__seller=shop.user).values('order').distinct().count(),
+        }
+        
+        # Sửa từ product thành products (số nhiều)
+        context.update({
+            'products': page_obj,
+            'stats': stats,
+            'categories': Category.objects.filter(products__seller=shop.user).distinct(),
+        })
+        return context
+# Cập nhật SellerProfileUpdateView để chuyển hướng đến shop profile sau khi lưu
+class SellerProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = SellerProfile
+    form_class = SellerProfileForm
+    template_name = 'users/seller_profile_form.html'
+    
+    def get_object(self):
+        return self.request.user.seller_profile
+        
+    def get_success_url(self):
+        return reverse_lazy('users:shop_profile', kwargs={'pk': self.object.pk})

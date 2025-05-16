@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ shop.shop_name }} - Shop Profile | Canteen{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/shop_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Shop Header -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex flex-wrap items-center">
+            <div class="w-full md:w-1/4 flex justify-center">
+                {% if shop.shop_logo %}
+                <img src="{{ shop.shop_logo.url }}" alt="{{ shop.shop_name }}" class="w-40 h-40 object-cover rounded-full border-4 border-orange-100 shadow">
+                {% else %}
+                <div class="w-40 h-40 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
+                    <i class="fas fa-store text-5xl"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="w-full md:w-3/4 mt-6 md:mt-0">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ shop.shop_name }}</h1>
+                
+                <div class="flex flex-wrap items-center text-gray-600 mb-4">
+                    <div class="mr-6">
+                        <i class="fas fa-box mr-2 text-orange-500"></i>
+                        <span>{{ stats.product_count }} sản phẩm</span>
+                    </div>
+                    <div class="mr-6">
+                        <i class="fas fa-shopping-bag mr-2 text-orange-500"></i>
+                        <span>{{ stats.orders_count }} đơn hàng</span>
+                    </div>
+                    <!-- Thêm thông tin khác như rating nếu cần -->
+                </div>
+                
+                {% if shop.shop_description %}
+                <p class="text-gray-600 mb-4">{{ shop.shop_description }}</p>
+                {% endif %}
+                
+                {% if request.user == shop.user %}
+                <a href="{% url 'users:seller_profile' %}" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-full inline-flex items-center">
+                    <i class="fas fa-edit mr-2"></i> Chỉnh sửa cửa hàng
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Shop Products -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Sản Phẩm của {{ shop.shop_name }}</h2>
+            
+            {% if categories.exists %}
+            <div class="relative">
+                <select id="categoryFilter" class="appearance-none bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">Tất cả danh mục</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 product-container">
+            {% for product in products %}
+            <div class="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300" data-category="{{ product.category.id }}">
+                <a href="{% url 'products:product_detail' product.id %}">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('{% if product.image %}{{ product.image.url }}{% else %}https://via.placeholder.com/300x200?text=No+Image{% endif %}')"></div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ product.name }}</h3>
+                        <p class="text-orange-500 font-bold">{{ product.price|intcomma }} VND</p>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ product.description|truncatechars:100 }}</p>
+                    </div>
+                </a>
+                <div class="px-4 pb-4">
+                    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="add-to-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg transition-colors">
+                            <i class="fas fa-shopping-cart mr-2"></i> Thêm vào giỏ
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <div class="pagination mt-8 flex justify-center">
+            <ul class="flex space-x-2">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a href="?page={{ products.previous_page_number }}" class="page-link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for i in products.paginator.page_range %}
+                    {% if products.number == i %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ products.next_page_number }}" class="page-link">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-16 bg-white rounded-lg shadow">
+            <i class="fas fa-store-alt-slash text-gray-400 text-5xl mb-4"></i>
+            <p class="text-gray-600 text-lg">Cửa hàng này chưa có sản phẩm nào.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter products by category
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', function() {
+            const selectedCategory = this.value;
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                if (!selectedCategory || card.dataset.category === selectedCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+</script>
+{% endblock %}

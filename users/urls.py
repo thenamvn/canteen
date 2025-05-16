@@ -25,4 +25,5 @@ urlpatterns = [
         views.SellerProfileUpdateView.as_view(),
         name="seller_profile",
     ),
+    path('shop/<int:pk>/', views.ShopProfileView.as_view(), name='shop_profile'),
 ]

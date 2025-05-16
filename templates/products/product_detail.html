@@ -34,7 +34,13 @@
         
         <div class="p-6">
             <h1 class="text-3xl font-bold mb-2">{{ product.name }}</h1>
-            <p class="text-gray-500 mb-4">Sold by: {{ product.seller.username }}</p>
+            <!-- <p class="text-gray-500 mb-4">Sold by: {{ product.seller.username }}</p> -->
+            <div class="mb-4">
+                <p class="text-gray-600">Người bán:</p>
+                <a href="{% url 'users:shop_profile' product.seller.seller_profile.pk %}" class="font-medium text-orange-600 hover:text-orange-700">
+                    {{ product.seller.seller_profile.shop_name }}
+                </a>
+            </div>
             
             <div class="mb-4">
                 <span class="text-2xl font-bold text-orange-500">{{ product.price|intcomma }} VND</span>
