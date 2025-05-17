@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%load humanize %}
 
 {% block title %}Order Placed | Canteen{% endblock %}
 
@@ -18,7 +19,7 @@
         </div>
         <div class="flex justify-between mb-2">
             <span class="text-gray-600">Tổng tiền:</span>
-            <span class="font-medium">{{ order.total_amount }} VND</span>
+            <span class="font-medium">{{ order.total_amount | intcomma}} VND</span>
         </div>
         <div class="flex justify-between mb-2">
             <span class="text-gray-600">Thanh toán:</span>
