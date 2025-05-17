@@ -19,9 +19,9 @@
     <header class="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <!-- Logo -->
-            <a href="{% url 'products:home' %}"
-                class="text-3xl font-bold text-orange-600 hover:text-orange-700 transition-colors">
-                Canteen
+            <a href="{% url 'products:home' %}" class="flex items-center space-x-2">
+                <i class="fas fa-utensils text-orange-500 text-2xl"></i>
+                <span class="text-2xl font-bold text-gray-800">Canteen</span>
             </a>
             <!-- Tìm kiếm -->
             <div class="flex-1 max-w-md mx-6 hidden md:block">
@@ -39,8 +39,12 @@
                 <!-- Giỏ hàng -->
                 <a href="{% url 'cart:cart_detail' %}"
                     class="flex items-center text-gray-700 hover:text-orange-600 transition-colors">
-                    <i class="fas fa-shopping-cart mr-2"></i>
-                    <span class="font-medium">Giỏ hàng ({{ cart|length }})</span> {# Make sure 'cart' is available in context #}
+                    <i class="fas fa-shopping-cart text-x"></i>
+                    {% if cart|length > 0 %}
+                    <span class="ml-2 bg-orange-600 text-white rounded-full px-2 py-1 text-xs font-semibold">
+                        {{ cart|length }}
+                    </span>
+                    {% endif %}
                 </a>
                 <!-- Menu người dùng -->
                 {% if user.is_authenticated %}

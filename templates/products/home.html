@@ -10,64 +10,41 @@
 {% block content %}
 
 <!-- Hero Section -->
-<section id="hero" class="relative h-[90vh] bg-cover bg-center flex flex-col justify-center items-center text-center" style="background-image: url('https://placehold.co/1920x1080/333333/ffffff?text=The+Favorite+Burger+Recipes');">
-    <div class="bg-black/60 absolute inset-0"></div>
-    <div class="relative z-10 px-6">
-        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4">THE FAVORITE BURGER RECIPES</h1>
-        <p class="text-lg text-gray-300">A food blog about food & life</p>
+<section id="hero" class="relative h-[80vh] bg-cover bg-center flex flex-col justify-center items-center text-center" 
+         style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');">
+    <div class="bg-black/50 absolute inset-0"></div>
+    <div class="relative z-10 px-6 max-w-3xl mx-auto">
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in">Món Ngon Mỗi Ngày</h1>
+        <p class="text-xl text-gray-200 mb-8">Đặt hàng dễ dàng, giao hàng nhanh chóng</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#featured-products" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-8 rounded-full font-medium transition-all transform hover:scale-105">
+                Đặt Hàng Ngay
+            </a>
+            <a href="#categories" class="bg-white hover:bg-gray-100 text-gray-800 py-3 px-8 rounded-full font-medium transition-all transform hover:scale-105">
+                Xem Danh Mục
+            </a>
+        </div>
     </div>
 </section>
-
-<!-- Stories Section -->
-<section id="stories" class="max-w-7xl mx-auto px-4 py-16 space-y-16">
-
-    <!-- Story 1 -->
-    <div class="relative">
-        <div class="md:flex">
-            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/555/FFF?text=Burger+Story+1');"></div>
-            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">THE PERFECT BURGER</h2>
-                <p class="text-sm text-gray-500 mb-2">By Christos on June 23, 2017 in Burger Food</p>
-                <p class="text-gray-700 mb-6">
-                    While she stood looking eagerly at the strange and beautiful sights, she noticed coming toward her a group of the queerest people she had ever seen...
-                </p>
-                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
-            </div>
-        </div>
+{% if search_query %}
+<div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-xl font-semibold mb-2">Kết quả tìm kiếm cho "{{ search_query }}"</h2>
+        <p>Đã tìm thấy {{ products|length }} sản phẩm</p>
+        
+        {% if products|length > 0 %}
+        <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
+            <i class="fas fa-times mr-1"></i> Xóa bộ lọc
+        </a>
+        {% else %}
+        <p class="mt-2">Không tìm thấy sản phẩm nào. Vui lòng thử từ khóa khác.</p>
+        <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
+            <i class="fas fa-arrow-left mr-1"></i> Quay lại trang chủ
+        </a>
+        {% endif %}
     </div>
-
-    <!-- Story 2 -->
-    <div class="relative">
-        <div class="md:flex flex-row-reverse">
-            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/666/FFF?text=Burger+Story+2');"></div>
-            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">GREEN-CHILE BURGERS WITH FRIED EGGS</h2>
-                <p class="text-sm text-gray-500 mb-2">By Christos on June 22, 2017 in Food</p>
-                <p class="text-gray-700 mb-6">
-                    Porchetta pancetta jerky, pig turkey landjaeger bacon. Kielbasa pork belly brisket sirloin...
-                </p>
-                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Story 3 -->
-    <div class="relative">
-        <div class="md:flex">
-            <div class="md:w-1/2 bg-cover bg-center h-96 md:h-auto" style="background-image: url('https://placehold.co/800x600/777/FFF?text=Burger+Story+3');"></div>
-            <div class="md:w-1/2 bg-white p-8 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">BACON BURGERS ON BRIOCHE</h2>
-                <p class="text-sm text-gray-500 mb-2">By Christos on June 21, 2017 in Food</p>
-                <p class="text-gray-700 mb-6">
-                    Bacon ipsum dolor amet beef ribs brisket hamburger sausage ribeye. Short ribs boudin shank ham hock...
-                </p>
-                <a href="#" class="text-orange-500 font-semibold hover:underline">Read more →</a>
-            </div>
-        </div>
-    </div>
-
-</section>
-
+</div>
+{% endif %}
 <!-- Categories Section -->
 <section id="categories" class="max-w-7xl mx-auto px-4 py-16">
     <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Danh Mục</h2>
@@ -92,30 +69,52 @@
 </section>
 
 <!-- Featured Products Section -->
-<section id="featured-products" class="bg-gray-100 py-16">
+<section id="featured-products" class="py-16">
     <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Sản Phẩm Nổi Bật</h2>
+        <div class="flex flex-col items-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4 text-center">Sản Phẩm Nổi Bật</h2>
+            <div class="w-24 h-1 bg-orange-500 rounded-full"></div>
+        </div>
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for product in products %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition">
-                <a href="{% url 'products:product_detail' product.slug %}">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <a href="{% url 'products:product_detail' product.slug %}" class="block overflow-hidden">
                     {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    <div class="h-48 overflow-hidden">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                             class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110">
+                    </div>
                     {% else %}
-                    <img src="https://placehold.co/400x350/FA8072/white?text=Product" alt="Product" class="w-full h-48 object-cover">
+                    <div class="h-48 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-hamburger text-gray-400 text-4xl"></i>
+                    </div>
                     {% endif %}
                 </a>
                 <div class="p-4">
-                    <h3 class="font-semibold text-lg text-gray-800 mb-2">{{ product.name }}</h3>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg text-gray-800 group-hover:text-orange-500 transition-colors">
+                            {{ product.name }}
+                        </h3>
+                        {% if product.stock > 0 %}
+                        <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded">Còn hàng</span>
+                        {% else %}
+                        <span class="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded">Hết hàng</span>
+                        {% endif %}
+                    </div>
+                    
                     <p class="text-orange-500 font-bold mb-4">{{ product.price|intcomma }} VND</p>
+                    
                     {% if product.stock > 0 %}
-                        <form method="post" action="{% url 'cart:cart_add' product.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-full hover:bg-orange-600 transition">Thêm vào giỏ</button>
-                        </form>
+                    <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center">
+                            <i class="fas fa-shopping-cart mr-2"></i> Thêm vào giỏ
+                        </button>
+                    </form>
                     {% else %}
-                        <button class="w-full bg-gray-400 text-white py-2 rounded-full cursor-not-allowed" disabled>Hết hàng</button>
+                    <button class="w-full bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed" disabled>Hết hàng</button>
                     {% endif %}
                 </div>
             </div>

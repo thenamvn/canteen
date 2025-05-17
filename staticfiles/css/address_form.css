@@ -1,0 +1,36 @@
+/* Tùy chỉnh biểu mẫu địa chỉ */
+.form-container {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Hiệu ứng hover cho thẻ form */
+.form-container>div {
+    transition: all 0.3s ease;
+}
+
+/* Tùy chỉnh input */
+input[type="text"] {
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+/* Tùy chỉnh checkbox */
+input[type="checkbox"] {
+    transition: all 0.3s ease;
+}
+
+/* Tùy chỉnh nút */
+button,
+a {
+    transition: all 0.3s ease;
+}
+
+/* Responsive cho lưới ward/district */
+@media (max-width: 640px) {
+    .form-container .grid-cols-1 {
+        grid-template-columns: 1fr;
+    }
+}
