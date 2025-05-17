@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}{{ category.name }} | Canteen{% endblock %}
 
@@ -33,7 +34,7 @@
             <a href="{% url 'products:product_detail' product.slug %}" class="block mb-2">
                 <h3 class="font-semibold text-lg">{{ product.name }}</h3>
             </a>
-            <p class="text-orange-500 font-bold mb-2">{{ product.price }} VND</p>
+            <p class="text-orange-500 font-bold mb-2">{{ product.price | intcomma}} VND</p>
             <form method="post" action="{% url 'cart:cart_add' product.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">

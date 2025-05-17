@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
 from .models import Product, Category
 from .forms import ProductForm
-
+from django.db.models import Q
 # Helper function to check if user is a seller
 def is_seller(user):
     return user.is_authenticated and user.is_seller
@@ -99,3 +99,29 @@ def delete_product(request, pk):
     if request.method == 'POST':
         product.delete()
     return redirect('seller:dashboard')
+
+def home(request):
+    # Get search query from request
+    search_query = request.GET.get('q', '')
+    
+    # Get all available products
+    products = Product.objects.filter(is_available=True)
+    
+    # Filter products if search query exists
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) | 
+            Q(description__icontains=search_query) |
+            Q(category__name__icontains=search_query)
+        )
+    
+    # Get all categories
+    categories = Category.objects.all()
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'search_query': search_query,  # Pass search query to template
+    }
+    
+    return render(request, 'products/home.html', context)

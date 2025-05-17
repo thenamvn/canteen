@@ -1,0 +1,160 @@
+/* Tùy chỉnh trang chủ */
+body {
+    font-family: 'Inter', sans-serif;
+    perspective: 1000px;
+    /* Cho phép hiệu ứng 3D */
+}
+
+/* Parallax Background */
+.parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+}
+
+/* 3D Flip Card */
+.flip-card {
+    perspective: 1000px;
+    height: 200px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+/* Glossy Overlay */
+.glossy-overlay {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
+    transition: opacity 0.3s ease;
+}
+
+.tilt-card:hover .glossy-overlay {
+    opacity: 0.8;
+}
+
+/* Floating Icons */
+.floating-icon {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotateX(10deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotateX(-10deg);
+    }
+}
+
+/* Animations */
+.animate-hero-title {
+    animation: slideUp 1s ease-out;
+}
+
+.animate-hero-subtitle {
+    animation: slideUp 1s ease-out 0.3s backwards;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) rotateX(20deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+/* Ripple Effect for Buttons */
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1);
+    transform-origin: center;
+    animation: ripple 0.6s ease-out;
+}
+
+.ripple-button:active::after {
+    opacity: 1;
+    transform: scale(0);
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(100);
+        opacity: 0;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .parallax-bg {
+        background-attachment: scroll;
+        /* Disable parallax on mobile */
+    }
+
+    .flip-card,
+    .tilt-card {
+        transform: none !important;
+        /* Disable 3D effects on mobile */
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-cols-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .grid-cols-4 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
