@@ -22,10 +22,9 @@
             <a href="{% url 'products:home' %}" class="flex items-center space-x-2">
                 <i class="fas fa-utensils text-orange-500 text-2xl"></i>
                 <span class="text-2xl font-bold text-gray-800">Canteen</span>
-            </a>
-            <!-- Tìm kiếm -->
+            </a>            <!-- Tìm kiếm -->
             <div class="flex-1 max-w-md mx-6 hidden md:block">
-                <form action="{% url 'products:home' %}" method="get" class="relative">
+                <form action="{% url 'products:home' %}#featured-products" method="get" class="relative">
                     <input type="text" name="q" placeholder="Tìm món ăn..."
                         class="w-full py-2 px-4 pr-12 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700 transition-all">
                     <button type="submit"

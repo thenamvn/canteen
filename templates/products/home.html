@@ -26,25 +26,7 @@
         </div>
     </div>
 </section>
-{% if search_query %}
-<div class="max-w-7xl mx-auto px-4 py-4">
-    <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="text-xl font-semibold mb-2">Kết quả tìm kiếm cho "{{ search_query }}"</h2>
-        <p>Đã tìm thấy {{ products|length }} sản phẩm</p>
-        
-        {% if products|length > 0 %}
-        <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
-            <i class="fas fa-times mr-1"></i> Xóa bộ lọc
-        </a>
-        {% else %}
-        <p class="mt-2">Không tìm thấy sản phẩm nào. Vui lòng thử từ khóa khác.</p>
-        <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
-            <i class="fas fa-arrow-left mr-1"></i> Quay lại trang chủ
-        </a>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
+
 <!-- Categories Section -->
 <section id="categories" class="max-w-7xl mx-auto px-4 py-16">
     <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Danh Mục</h2>
@@ -75,7 +57,25 @@
             <h2 class="text-4xl font-bold text-gray-800 mb-4 text-center">Sản Phẩm Nổi Bật</h2>
             <div class="w-24 h-1 bg-orange-500 rounded-full"></div>
         </div>
-        
+        {% if search_query %}
+        <div class="max-w-7xl mx-auto py-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h2 class="text-xl font-semibold mb-2">Kết quả tìm kiếm cho "{{ search_query }}"</h2>
+                <p>Đã tìm thấy {{ products|length }} sản phẩm</p>
+                
+                {% if products|length > 0 %}
+                <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
+                    <i class="fas fa-times mr-1"></i> Xóa bộ lọc
+                </a>
+                {% else %}
+                <p class="mt-2">Không tìm thấy sản phẩm nào. Vui lòng thử từ khóa khác.</p>
+                <a href="{% url 'products:home' %}" class="text-orange-500 hover:text-orange-600 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i> Quay lại trang chủ
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for product in products %}
             <div class="bg-white rounded-xl shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300">
