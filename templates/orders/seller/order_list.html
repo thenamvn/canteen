@@ -47,15 +47,33 @@
                             <div class="text-sm text-gray-900">{{ order.user.username }}</div>
                             <div class="text-sm text-gray-500">{{ order.address.phone_number }}</div>
                         </td>
+                        {# orders/seller/order_list.html - cột trạng thái #}
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% comment %} Logic cho màu sắc badge có thể cần phức tạp hơn nếu dựa trên text hiển thị mới {% endcomment %}
+                                {% if order.status == 'pending' and order.payment_method == 'cod' %}bg-yellow-100 text-yellow-800
+                                {% elif order.status == 'pending_payment' and order.payment_method == 'transfer' %}bg-orange-100 text-orange-800
                                 {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
-                                {% elif order.status == 'shipped' %}bg-indigo-100 text-indigo-800
-                                {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                                {% elif order.status == 'shipped' %}bg-indigo-100 text-indigo-800   {# Màu cho 'Đang giao hàng' #}
+                                {% elif order.status == 'delivered' %}bg-green-100 text-green-800   {# Màu cho 'Đã nhận hàng' / 'Đã giao hàng (khách nhận)' #}
                                 {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
-                                {% endif %}">
-                                {{ order.get_status_display }}
+                                {% elif order.status == 'payment_failed' %}bg-pink-100 text-pink-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                
+                                {% if order.status == 'shipped' %}
+                                    Đang giao hàng  {# Hiển thị đúng text mong muốn #}
+                                {% elif order.status == 'delivered' %}
+                                    {# Dựa trên STATUS_CHOICES của bạn ("delivered", "Đã nhận hàng") #}
+                                    {# và template option value="delivered" có text "Đã giao hàng" #}
+                                    {# Bạn cần quyết định text hiển thị cuối cùng cho 'delivered' ở đây #}
+                                    {# Ví dụ, nếu bạn muốn nó hiển thị là "Đã giao hàng (khách đã nhận)" khi status là 'delivered': #}
+                                    Đã nhận hàng {# Hoặc "Đã giao hàng (khách đã nhận)" để khớp với ý nghĩa của delivered #}
+                                {% else %}
+                                    {{ order.get_status_display }} {# Các trạng thái khác vẫn dùng get_status_display #}
+                                    {# Nếu là COD hoặc Transfer, bạn có thể thêm hậu tố như đã làm ở lượt trước #}
+                                    {% if order.payment_method == 'cod' and order.status == 'pending' %} (COD){% endif %}
+                                    {% if order.payment_method == 'transfer' and order.status == 'pending_payment' %} (PayOS){% endif %}
+                                {% endif %}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

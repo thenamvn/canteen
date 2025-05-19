@@ -12,10 +12,17 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import (
+    load_dotenv,
+)  # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+dotenv_path = BASE_DIR / ".env"  # Đường dẫn đến file .env
+load_dotenv(dotenv_path=dotenv_path)
+BASE_DIR = Path(__file__).resolve().parent.parent
+PAYOS_CLIENT_ID = os.environ.get("PAYOS_CLIENT_ID", "YOUR_FALLBACK_CLIENT_ID")
+PAYOS_API_KEY = os.environ.get("PAYOS_API_KEY", "YOUR_FALLBACK_API_KEY")
+PAYOS_CHECKSUM_KEY = os.environ.get("PAYOS_CHECKSUM_KEY", "YOUR_FALLBACK_CHECKSUM_KEY")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -38,12 +45,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'django.contrib.humanize',
+    "django.contrib.humanize",
     # Custom apps
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
     "cart.apps.CartConfig",
     "orders.apps.OrdersConfig",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
