@@ -1,145 +1,369 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
 
-{% block title %}Checkout | Canteen{% endblock %}
+{% block title %}Thanh toán | Canteen{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Checkout</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Thanh toán</h1>
 
-{% if messages %}
-<div class="mb-6">
-    {% for message in messages %}
-    <div class="p-4 mb-4 rounded {% if message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Order Summary -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="p-6">
-            <h2 class="text-lg font-bold mb-4">Order Summary</h2>
-            <div class="divide-y">
-                {% for item in cart %}
-                <div class="py-3 flex justify-between">
-                    <div>
-                        <p class="font-medium">{{ item.product.name }}</p>
-                        <p class="text-gray-600 text-sm">{{ item.quantity }} x {{ item.price | intcomma}} VND</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-medium">{{ item.total_price | intcomma }} VND</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="border-t mt-4 pt-4">
-                <div class="flex justify-between">
-                    <p class="font-bold">Total:</p>
-                    <p class="font-bold">{{ cart.get_total_price | intcomma }} VND</p>
-                </div>
-            </div>
+    {% if messages %}
+    <div class="mb-8 max-w-3xl mx-auto">
+        {% for message in messages %}
+        <div class="p-4 mb-4 rounded-lg shadow-md {% if message.tags == 'success' %}bg-green-50 border border-green-300 text-green-700{% elif message.tags == 'error' %}bg-red-50 border border-red-300 text-red-700{% else %}bg-blue-50 border border-blue-300 text-blue-700{% endif %}" role="alert">
+            <span class="font-medium">{{ message|capfirst }}</span>
+            {# Hiển thị phần còn lại của message, tránh lặp lại chữ cái đầu nếu message.message đã có chữ hoa #}
+            {% if message.message|length > 1 %} {{ message.message|slice:"1:"|safe }} {% endif %}
         </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
-    <!-- Shipping Information -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="p-6">
-            <h2 class="text-lg font-bold mb-4">Shipping Information</h2>
+    <form method="post" id="checkout-form" class="space-y-8">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-6 order-last lg:order-first">
+                <h2 class="text-xl font-semibold mb-6 text-gray-700 border-b pb-3">Tóm tắt đơn hàng</h2>
+                <div class="divide-y divide-gray-200 mb-6">
+                    {% for item in cart %}
+                    <div class="py-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-800">{{ item.product.name }}</p>
+                            <p class="text-sm text-gray-500">{{ item.quantity }} &times; {{ item.price|intcomma }} VND</p>
+                        </div>
+                        <p class="font-medium text-gray-700 text-right">{{ item.total_price|intcomma }} VND</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between items-center font-bold text-lg">
+                        <p class="text-gray-800">Tổng cộng:</p>
+                        <p class="text-orange-600">{{ cart.get_total_price|intcomma }} VND</p>
+                    </div>
+                </div>
+            </div>
 
-            {% if addresses %}
-            <div class="mb-6">
-                <h3 class="text-md font-semibold mb-2">Select an existing address</h3>
-                <form method="post" id="address-form">
-                    {% csrf_token %}
-                    <!-- Thêm input hidden cho form_type -->
-                    <input type="hidden" name="form_type" value="use_address">
-                    <div class="space-y-3">
-                        {% for address in addresses %}
-                        <div class="border rounded-md p-3 {% if address.is_default %}ring-2 ring-orange-500{% endif %}">
-                            <label class="flex items-start cursor-pointer">
-                                <input type="radio" name="address" value="{{ address.id }}" class="mt-1 mr-3" 
-                                    {% if address.is_default or forloop.first %}checked{% endif %}>
-                                <div>
-                                    <p class="font-medium">{{ address.recipient_name }} | {{ address.phone_number }}</p>
-                                    <p class="text-gray-600">{{ address.street_address }}, {{ address.ward }}, {{ address.district }}, {{ address.city }}</p>
-                                </div>
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-6 text-gray-700 border-b pb-3">Thanh toán và Giao hàng</h2>
+
+                <div class="space-y-8">
+                    <fieldset class="space-y-3">
+                        <legend class="text-lg font-medium mb-3 text-gray-700">1. Chọn phương thức thanh toán</legend>
+                        <label class="flex items-center cursor-pointer p-3 border rounded-md hover:border-orange-500 has-[:checked]:ring-2 has-[:checked]:ring-orange-500 has-[:checked]:border-orange-500 transition-all">
+                            <input type="radio" name="payment_method" value="cod" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300" required 
+                                   {% if request.POST.payment_method == 'cod' or not request.POST.payment_method and not cart.is_empty %}checked{% endif %}>
+                            <span class="ml-3 text-sm font-medium text-gray-700">Thanh toán khi nhận hàng (COD)</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer p-3 border rounded-md hover:border-orange-500 has-[:checked]:ring-2 has-[:checked]:ring-orange-500 has-[:checked]:border-orange-500 transition-all">
+                            <input type="radio" name="payment_method" value="transfer" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300" required 
+                                   {% if request.POST.payment_method == 'transfer' %}checked{% endif %}>
+                            <span class="ml-3 text-sm font-medium text-gray-700">Chuyển khoản ngân hàng (Qua PayOS)</span>
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend class="text-lg font-medium mb-3 text-gray-700">2. Địa chỉ giao hàng</legend>
+                        
+                        {# Input ẩn address_mode, JS sẽ đặt giá trị cho nó #}
+                        <input type="hidden" name="address_mode" id="address_mode_hidden_input" value="">
+
+                        {# Lựa chọn chế độ địa chỉ #}
+                        <div class="space-y-3 mb-4">
+                            {% if addresses %}
+                            <label class="flex items-center cursor-pointer p-3 border rounded-md hover:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:border-orange-400">
+                                <input type="radio" name="address_mode_choice" value="use_existing" id="address_mode_choice_existing" class="h-4 w-4 text-orange-600 focus:ring-orange-400 border-gray-300">
+                                <span class="ml-3 text-sm font-medium text-gray-700">Sử dụng địa chỉ đã lưu</span>
+                            </label>
+                            {% endif %}
+                            <label class="flex items-center cursor-pointer p-3 border rounded-md hover:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:border-orange-400">
+                                <input type="radio" name="address_mode_choice" value="create_new" id="address_mode_choice_new" class="h-4 w-4 text-orange-600 focus:ring-orange-400 border-gray-300">
+                                <span class="ml-3 text-sm font-medium text-gray-700">{% if addresses %}Thêm địa chỉ mới{% else %}Cung cấp địa chỉ giao hàng{% endif %}</span>
                             </label>
                         </div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="mt-6">
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
-                            Đặt hàng
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="border-t pt-6">
-                <h3 class="text-md font-semibold mb-2">hoặc thêm địa chỉ mới</h3>
-            {% endif %}
-                
-            <form method="post" id="new-address-form">
-                {% csrf_token %}
-                <!-- Thêm input hidden cho form_type -->
-                <input type="hidden" name="form_type" value="create_address">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label for="id_recipient_name" class="block text-gray-700 mb-1">Người nhận</label>
-                        {{ form.recipient_name }}
-                    </div>
-                    <div class="col-span-2">
-                        <label for="id_phone_number" class="block text-gray-700 mb-1">Số điện thoại</label>
-                        {{ form.phone_number }}
-                    </div>
-                    <div class="col-span-2">
-                        <label for="id_street_address" class="block text-gray-700 mb-1">Street Address</label>
-                        {{ form.street_address }}
-                    </div>
-                    <div>
-                        <label for="id_ward" class="block text-gray-700 mb-1">Ward</label>
-                        {{ form.ward }}
-                    </div>
-                    <div>
-                        <label for="id_district" class="block text-gray-700 mb-1">District</label>
-                        {{ form.district }}
-                    </div>
-                    <div class="col-span-2">
-                        <label for="id_city" class="block text-gray-700 mb-1">City</label>
-                        {{ form.city }}
-                    </div>
-                    <div class="col-span-2">
-                        <div class="flex items-center">
-                            {{ form.is_default }}
-                            <label for="id_is_default" class="ml-2">Đặt làm địa chỉ mặc định</label>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="mt-6">
-                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">
-                        Đặt hàng với địa chỉ mới
-                    </button>
+                        {% if addresses %}
+                        <div id="existing-address-list-container" class="hidden mb-4">
+                            <h4 class="text-md font-semibold mb-2 text-gray-600">Chọn từ danh sách:</h4>
+                            <div class="space-y-3">
+                                {% for address_obj in addresses %} {# Đổi tên biến lặp #}
+                                <div class="border border-gray-200 rounded-lg hover:border-orange-400 has-[:checked]:ring-2 has-[:checked]:ring-orange-500 has-[:checked]:border-orange-500 transition-all">
+                                    <label class="flex items-start p-3 cursor-pointer">
+                                        <input type="radio" name="address" value="{{ address_obj.id }}" class="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-400 border-gray-300 existing-address-radio-option">
+                                            {# Logic checked sẽ được JS xử lý hoặc dựa trên giá trị POST #}
+                                        <div class="ml-3 text-sm">
+                                            <p class="font-medium text-gray-800">{{ address_obj.recipient_name }} | {{ address_obj.phone_number }} {% if address_obj.is_default %}<span class="ml-2 text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Mặc định</span>{% endif %}</p>
+                                            <p class="text-gray-600">{{ address_obj.street_address }}, {{ address_obj.ward }}, {{ address_obj.district }}, {{ address_obj.city }}</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div id="new-address-form-fields-container" class="hidden">
+                            <h4 class="text-md font-semibold mb-2 text-gray-600 {% if addresses %}mt-4 pt-4 border-t{% endif %}">
+                                {% if addresses %}Thông tin địa chỉ mới:{% else %}Địa chỉ giao hàng:{% endif %}
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 pt-2">
+                                <div class="sm:col-span-2">
+                                    <label for="{{ form.recipient_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Người nhận</label>
+                                    {{ form.recipient_name }}
+                                    {% if form.recipient_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.recipient_name.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}<p class="text-red-500 text-xs mt-1">{{ form.phone_number.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="{{ form.street_address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ (Số nhà, tên đường)</label>
+                                    {{ form.street_address }}
+                                    {% if form.street_address.errors %}<p class="text-red-500 text-xs mt-1">{{ form.street_address.errors|first }}</p>{% endif %}
+                                </div>
+                                 <div>
+                                    <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố</label>
+                                    {{ form.city }}
+                                    {% if form.city.errors %}<p class="text-red-500 text-xs mt-1">{{ form.city.errors|first }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label for="{{ form.district.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
+                                    {{ form.district }}
+                                    {% if form.district.errors %}<p class="text-red-500 text-xs mt-1">{{ form.district.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label for="{{ form.ward.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phường/Xã</label>
+                                    {{ form.ward }}
+                                    {% if form.ward.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ward.errors|first }}</p>{% endif %}
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <div class="flex items-center mt-1">
+                                        {{ form.is_default }}
+                                        <label for="{{ form.is_default.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">Đặt làm địa chỉ mặc định</label>
+                                    </div>
+                                     {% if form.is_default.errors %}<p class="text-red-500 text-xs mt-1">{{ form.is_default.errors|first }}</p>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                            Đặt hàng ({{ cart.get_total_price|intcomma }} VND)
+                        </button>
+                        <p class="text-xs text-gray-500 mt-3 text-center">Bằng việc nhấp vào "Đặt hàng", bạn đồng ý với <a href="#" class="text-orange-600 hover:underline">Điều khoản dịch vụ</a> của chúng tôi.</p>
+                    </div>
                 </div>
-            </form>
-            {% if addresses %}</div>{% endif %}
+            </div>
         </div>
-    </div>
+    </form>
 </div>
+
+{# Truyền biến từ Django context vào JavaScript #}
+<script id="django-context-script" type="application/json">
+{
+    "address_mode": "{{ address_mode|default:'' }}",
+    "form_has_errors": {% if form.errors %}true{% else %}false{% endif %},
+    "has_existing_addresses": {% if addresses %}true{% else %}false{% endif %},
+    "posted_address_id": "{{ request.POST.address|default:'' }}",
+    "default_address_id": "{% for addr in addresses %}{% if addr.is_default %}{{ addr.id }}{% endif %}{% endfor %}"
+}
+</script>
 {% endblock %}
+
+{% comment %} orders/templates/orders/checkout.html {% endcomment %}
+{# ... phần HTML khác của bạn ... #}
 
 {% block extra_js %}
 <script>
-    // Kiểm tra đảm bảo có địa chỉ được chọn trước khi submit form
-    document.getElementById('address-form').addEventListener('submit', function(e) {
-        const selectedAddress = document.querySelector('input[name="address"]:checked');
-        if (!selectedAddress) {
-            e.preventDefault();
-            alert('Vui lòng chọn một địa chỉ giao hàng.');
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkout-form');
+    const addressModeHiddenInput = document.getElementById('address_mode_hidden_input');
+    
+    const useExistingAddressChoiceRadio = document.getElementById('address_mode_choice_existing');
+    const createNewAddressChoiceRadio = document.getElementById('address_mode_choice_new');
+    
+    const existingAddressListContainer = document.getElementById('existing-address-list-container');
+    const newAddressFormFieldsContainer = document.getElementById('new-address-form-fields-container');
+    
+    const existingAddressRadioOptions = document.querySelectorAll('input.existing-address-radio-option');
+    // Lấy tất cả input, select, textarea trong form địa chỉ mới, trừ checkbox is_default và input ẩn
+    const newAddressInputs = newAddressFormFieldsContainer 
+        ? Array.from(newAddressFormFieldsContainer.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), select, textarea'))
+        : [];
+    const newAddressIsDefaultCheckbox = newAddressFormFieldsContainer 
+        ? newAddressFormFieldsContainer.querySelector('input[name="is_default"]') // Giả sử name của checkbox is_default là "is_default"
+        : null;
+
+    // Lưu lại trạng thái 'required' ban đầu của các trường trong form địa chỉ mới (do Django render)
+    const initialRequiredStatus = new Map();
+    newAddressInputs.forEach(input => {
+        initialRequiredStatus.set(input, input.hasAttribute('required'));
+    });
+    if (newAddressIsDefaultCheckbox) { // Checkbox không có required, chỉ cần disable/enable
+        initialRequiredStatus.set(newAddressIsDefaultCheckbox, false); // Không quản lý required cho checkbox ở đây
+    }
+
+
+    // Lấy context từ thẻ script đã chèn ở cuối block content
+    const djangoContextElement = document.getElementById('django-context-script');
+    const djangoContext = JSON.parse(djangoContextElement.textContent);
+
+    function setAddressDisplayAndRequired(showExisting) {
+        if (showExisting && djangoContext.has_existing_addresses) {
+            if (existingAddressListContainer) existingAddressListContainer.classList.remove('hidden');
+            if (newAddressFormFieldsContainer) newAddressFormFieldsContainer.classList.add('hidden');
+            if (addressModeHiddenInput) addressModeHiddenInput.value = 'use_existing';
+            
+            let oneIsChecked = false;
+            existingAddressRadioOptions.forEach(radio => {
+                radio.required = true; // Phải chọn một địa chỉ đã lưu
+                radio.disabled = false;
+                if(radio.checked) oneIsChecked = true;
+            });
+            if(existingAddressRadioOptions.length > 0 && !document.querySelector('input.existing-address-radio-option:checked')) {
+                existingAddressRadioOptions[0].checked = true; // Check cái đầu tiên nếu chưa có cái nào được check
+            }
+            
+            // Vô hiệu hóa và bỏ required cho các trường địa chỉ mới
+            newAddressInputs.forEach(input => {
+                input.required = false;
+                input.disabled = true;
+            });
+            if (newAddressIsDefaultCheckbox) newAddressIsDefaultCheckbox.disabled = true;
+
+        } else { // Hiển thị form địa chỉ mới (showExisting = false hoặc không có địa chỉ đã lưu)
+            if (existingAddressListContainer) existingAddressListContainer.classList.add('hidden');
+            if (newAddressFormFieldsContainer) newAddressFormFieldsContainer.classList.remove('hidden');
+            if (addressModeHiddenInput) addressModeHiddenInput.value = 'create_new';
+            
+            existingAddressRadioOptions.forEach(radio => {
+                radio.required = false;
+                radio.disabled = true; // Vô hiệu hóa việc chọn địa chỉ đã lưu
+            });
+
+            // Kích hoạt và đặt lại 'required' cho các trường địa chỉ mới dựa trên trạng thái ban đầu
+            newAddressInputs.forEach(input => {
+                input.disabled = false;
+                if (initialRequiredStatus.get(input) === true) { // Khôi phục trạng thái required ban đầu
+                    input.required = true;
+                } else {
+                    input.required = false;
+                }
+            });
+            if (newAddressIsDefaultCheckbox) newAddressIsDefaultCheckbox.disabled = false;
+        }
+    }
+
+    // --- Initial State Logic ---
+    if (djangoContext.form_has_errors && djangoContext.address_mode === 'create_new') {
+        if (createNewAddressChoiceRadio) createNewAddressChoiceRadio.checked = true;
+        setAddressDisplayAndRequired(false); 
+    } else if (!djangoContext.has_existing_addresses) {
+        if (createNewAddressChoiceRadio) createNewAddressChoiceRadio.checked = true;
+        setAddressDisplayAndRequired(false); 
+    } else { 
+        const postedAddressId = djangoContext.posted_address_id;
+        const defaultAddressId = djangoContext.default_address_id;
+        let preSelectedByPostOrDjango = false;
+
+        if (postedAddressId) {
+            existingAddressRadioOptions.forEach(radio => {
+                if (radio.value === postedAddressId) {
+                    radio.checked = true;
+                    preSelectedByPostOrDjango = true;
+                }
+            });
+        }
+        
+        if (!preSelectedByPostOrDjango && defaultAddressId) {
+             existingAddressRadioOptions.forEach(radio => {
+                if (radio.value === defaultAddressId) {
+                    radio.checked = true;
+                    preSelectedByPostOrDjango = true;
+                }
+            });
+        }
+
+        if (!preSelectedByPostOrDjango && existingAddressRadioOptions.length > 0) {
+            existingAddressRadioOptions[0].checked = true;
+        }
+        
+        if (useExistingAddressChoiceRadio) useExistingAddressChoiceRadio.checked = true;
+        setAddressDisplayAndRequired(true);
+    }
+
+
+    // --- Event Listeners for mode choice ---
+    if (useExistingAddressChoiceRadio) {
+        useExistingAddressChoiceRadio.addEventListener('change', function() {
+            if (this.checked) {
+                setAddressDisplayAndRequired(true);
+            }
+        });
+    }
+
+    if (createNewAddressChoiceRadio) {
+        createNewAddressChoiceRadio.addEventListener('change', function() {
+            if (this.checked) {
+                setAddressDisplayAndRequired(false);
+            }
+        });
+    }
+    
+    // Apply styling (giữ nguyên)
+    const formFields = newAddressFormFieldsContainer ? newAddressFormFieldsContainer.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea') : [];
+    formFields.forEach(function(field) {
+        if (!field.classList.contains('form-input-styled')) {
+             field.classList.add('block', 'w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'focus:outline-none', 'focus:ring-orange-500', 'focus:border-orange-500', 'sm:text-sm', 'form-input-styled');
         }
     });
+    const checkboxDefault = newAddressFormFieldsContainer ? newAddressFormFieldsContainer.querySelector('input[type="checkbox"]') : null; // Sửa selector này nếu cần
+     if (checkboxDefault && !checkboxDefault.classList.contains('form-checkbox-styled')) {
+        checkboxDefault.classList.add('h-4', 'w-4', 'text-orange-600', 'border-gray-300', 'rounded', 'focus:ring-orange-500', 'form-checkbox-styled');
+    }
+
+    // --- Form Submission Validation ---
+    checkoutForm.addEventListener('submit', function(e) {
+        // Payment method check (HTML5 'required' handles this primarily)
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+        if (!selectedPayment) {
+            // alert('Vui lòng chọn phương thức thanh toán.');
+            // e.preventDefault(); 
+            // return;
+        }
+
+        const currentAddressMode = addressModeHiddenInput.value;
+
+        if (currentAddressMode === 'use_existing') {
+            if (djangoContext.has_existing_addresses) { 
+                const selectedExistingRadio = document.querySelector('input.existing-address-radio-option:checked');
+                if (!selectedExistingRadio) {
+                    alert('Vui lòng chọn một địa chỉ giao hàng từ danh sách đã lưu.');
+                    e.preventDefault();
+                    return;
+                }
+            } else { 
+                 alert('Không có địa chỉ đã lưu. Vui lòng thêm địa chỉ mới.');
+                 if (createNewAddressChoiceRadio) createNewAddressChoiceRadio.checked = true;
+                 setAddressDisplayAndRequired(false); 
+                 e.preventDefault();
+                 return;
+            }
+        } else if (currentAddressMode === 'create_new') {
+            // Khi tạo địa chỉ mới, trình duyệt sẽ tự động kiểm tra các trường 'required'
+            // của form địa chỉ mới vì chúng không bị disable.
+            // Nếu form không hợp lệ theo HTML5, việc submit sẽ bị chặn.
+            // if (!checkoutForm.checkValidity()) {
+            //     // Mặc dù checkValidity() có thể được gọi, nhưng thường thì không cần thiết
+            //     // vì trình duyệt sẽ tự hiển thị thông báo lỗi cho các trường required.
+            //     // Nếu bạn muốn một thông báo tổng quát:
+            //     // alert('Vui lòng điền đầy đủ các trường bắt buộc trong địa chỉ mới.');
+            //     // e.preventDefault(); 
+            // }
+        }
+    });
+});
 </script>
 {% endblock %}

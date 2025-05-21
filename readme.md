@@ -2,7 +2,6 @@
 
 ![image](https://github.com/user-attachments/assets/301729cb-a129-4938-80af-db58cc223864)
 
-
 **🍔 Overview**
 
 Canteen is a modern, Django-based web application for online food ordering and delivery management. The platform connects food sellers with customers, offering a seamless experience for browsing, ordering, and managing food items.

@@ -38,15 +38,24 @@
                 <div class="px-6 py-4 border-b">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-bold text-gray-800">Chi tiết đơn hàng #{{ order.id }}</h2>
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold
-                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
-                            {% elif order.status == 'shipped' %}bg-indigo-100 text-indigo-800
-                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800
-                            {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
-                            {% endif %}">
+                            {# orders/seller/order_detail.html - phần hiển thị trạng thái #}
+{# orders/seller/order_detail.html - phần hiển thị trạng thái #}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                        {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                        {% elif order.status == 'shipped' %}bg-indigo-100 text-indigo-800  {# Màu cho 'Đang giao hàng' #}
+                        {% elif order.status == 'delivered' %}bg-green-100 text-green-800  {# Màu cho 'Đã nhận hàng' #}
+                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800 {% endif %}">
+                        
+                        {% if order.status == 'shipped' %}
+                            Đang giao hàng
+                        {% elif order.status == 'delivered' %}
+                            Đã nhận hàng {# Hoặc "Đã giao hàng (khách đã nhận)" #}
+                        {% else %}
                             {{ order.get_status_display }}
-                        </span>
+                        {% endif %}
+                    </span>
                     </div>
                 </div>
 
