@@ -1,10 +1,9 @@
 from django.db import models
 from users.models import User
-from products.models import Product # Giả sử bạn muốn liên kết chat với sản phẩm
+from products.models import Product
 
 class ChatRoom(models.Model):
     # Sử dụng product_id và customer_id để tạo room name duy nhất
-    # Hoặc bạn có thể tạo một UUID field cho room name
     name = models.CharField(max_length=255, unique=True) # Ví dụ: product_1_customer_5_seller_2
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_rooms')
     customer = models.ForeignKey(User, related_name='customer_chat_rooms', on_delete=models.CASCADE)

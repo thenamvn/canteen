@@ -1,14 +1,14 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-# from .models import ChatMessage, ChatRoom, User, Product # Đã comment đúng
+# from .models import ChatMessage, ChatRoom, User, Product 
 from django.shortcuts import get_object_or_404 # get_object_or_404 không dùng trong consumer async
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Điểm 1: Lấy thông tin từ URL và scope
+        # Lấy thông tin từ URL và scope
         self.product_id = self.scope['url_route']['kwargs']['product_id']
-        self.url_seller_id = self.scope['url_route']['kwargs']['seller_id'] # Đổi tên seller_id từ URL để rõ ràng
+        self.url_seller_id = self.scope['url_route']['kwargs']['seller_id']
         self.connecting_user = self.scope['user'] # User đang thực hiện kết nối WebSocket
 
         if not self.connecting_user.is_authenticated:
@@ -18,7 +18,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         print(f"ChatConsumer: User {self.connecting_user.username} (ID: {self.connecting_user.id}) connecting for product {self.product_id}, url_seller_id {self.url_seller_id}")
 
-        # Điểm 2: self.chat_room_instance (đổi tên từ self.chat_room)
         self.chat_room_instance = await self.get_or_create_chat_room()
         
         if not self.chat_room_instance:
@@ -26,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close(code=4001) 
             return
 
-        # Điểm 3: room_name và room_group_name dựa trên instance đã lấy/tạo
+        #room_name và room_group_name dựa trên instance đã lấy/tạo
         self.room_name = self.chat_room_instance.name 
         self.room_group_name = f'group_{self.room_name}'
 
@@ -38,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         print(f"ChatConsumer: WebSocket accepted for room {self.room_name}")
 
-        # Điểm 4: send_chat_history dùng self.chat_room_instance
+        # send_chat_history dùng self.chat_room_instance
         await self.send_chat_history()
         print(f"ChatConsumer: Chat history sent for room {self.room_name}")
 
@@ -57,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_content = text_data_json['message']
             sender = self.connecting_user # Sử dụng self.connecting_user đã lưu
 
-            # Điểm 5: save_message dùng self.chat_room_instance
+            # save_message dùng self.chat_room_instance
             chat_message = await self.save_message(sender, message_content)
             if not chat_message: # Nếu save_message trả về None do lỗi
                 print(f"ChatConsumer: Failed to save message for room {self.room_name}")
@@ -86,7 +85,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def chat_message(self, event):
-        # ... (phần này giữ nguyên, không có vấn đề)
         message = event['message']
         sender_id = event['sender_id']
         sender_username = event['sender_username']
@@ -106,8 +104,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         from users.models import User
 
         try:
-            # self.product_id và self.url_seller_id đã được gán trong connect()
-            # self.connecting_user cũng đã được gán trong connect()
             print(f"DB_get_or_create_chat_room: connecting_user_id={self.connecting_user.id}, product_id={self.product_id}, url_seller_id={self.url_seller_id}")
 
             product_obj = Product.objects.get(id=self.product_id)
@@ -120,9 +116,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 customer_obj = self.connecting_user
                 # seller_for_db đã được xác định là seller_of_product
             else:
-                # Người kết nối LÀ người bán sản phẩm (seller_of_product).
-                # Họ đang muốn tham gia một phòng chat với một customer cụ thể.
-                # ID của customer này phải được gửi qua query string (other_user_id)
                 query_string = self.scope.get('query_string', b'').decode() # Lấy an toàn, mặc định là byte rỗng
                 params = {}
                 if query_string:
@@ -150,7 +143,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 print("DB_get_or_create_chat_room: Customer object could not be determined.")
                 return None
 
-            # Bây giờ chúng ta có: product_obj, customer_obj, seller_of_product
             # Tên phòng chuẩn để đảm bảo tính duy nhất
             standard_room_name = f"prod{product_obj.id}_cust{customer_obj.id}_sell{seller_of_product.id}"
             print(f"DB_get_or_create_chat_room: Attempting to get/create ChatRoom with name: {standard_room_name}")
@@ -160,7 +152,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 defaults={
                     'product': product_obj,
                     'customer': customer_obj,
-                    'seller': seller_of_product # Luôn là người bán thực sự của sản phẩm
+                    'seller': seller_of_product
                 }
             )
             if created:
@@ -187,7 +179,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender_user, content):
         from .models import ChatMessage
         try:
-            if not self.chat_room_instance: # Quan trọng: kiểm tra self.chat_room_instance
+            if not self.chat_room_instance:
                 print("DB_save_message: chat_room_instance is None. Cannot save message.")
                 return None
 
