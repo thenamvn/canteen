@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
 {% block title %}{{ product.name }} | Canteen{% endblock %}
 
 {% block content %}
@@ -83,6 +84,28 @@
             </div>
             {% endif %}
             
+            <!-- add chat session -->
+            {% if user.is_authenticated and user.id != product.seller.id %}
+                <div class="mt-6 border-t pt-4">
+                    <button id="chat-toggle-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md font-medium mb-2">
+                        Chat với Người bán
+                    </button>
+                    <div id="chat-window" class="hidden">
+                        <div id="chat-log" class="border p-3 h-64 overflow-y-auto bg-gray-50 rounded-md mb-2">
+                            <!-- Chat messages will be dynamically inserted here -->
+                        </div>
+                        <div class="flex">
+                            <input type="text" id="chat-message-input" class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập tin nhắn...">
+                            <button id="chat-message-submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-r-md">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            {% elif not user.is_authenticated %}
+                <div class="mt-6 border-t pt-4">
+                    <p class="text-center"><a href="{% url 'users:login' %}?next={{ request.path }}" class="text-blue-500 hover:underline">Đăng nhập</a> để chat với người bán.</p>
+                </div>
+            {% endif %}
+
             <div class="border-t pt-4">
                 <h3 class="font-semibold mb-2">Category:</h3>
                 <a href="{% url 'products:category' product.category.slug %}" class="text-orange-500 hover:underline">
@@ -92,4 +115,135 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+
+<!--Block extra cho javascript -->
+{% block extra_js %} 
+{% if user.is_authenticated and user.id != product.seller.id %}
+<script>
+    const productId = "{{ product.id }}";
+    const sellerId = "{{ product.seller.id }}";
+    const currentUserId = "{{ user.id }}"; // xác nhận người gửi 
+    const currentUsername = "{{ user.username }}"; // sender name
+
+    const chatToggleButton = document.getElementById('chat-toggle-button');
+    const chatWindow = document.getElementById('chat-window');
+    const chatLog = document.getElementById('chat-log');
+    const chatMessageInput = document.getElementById('chat-message-input');
+    const chatMessageSubmit = document.getElementById('chat-message-submit');
+
+    let chatSocket = null;
+
+    chatToggleButton.onclick = function(e) {
+        if (chatWindow.classList.contains("hidden")) {
+            chatWindow.classList.remove("hidden");
+            chatToggleButton.textContent = "Đóng Chat";
+            connectToChat();
+            chatMessageInput.focus();
+        } else {
+            chatWindow.classList.add("hidden");
+            chatToggleButton.textContent = "Chat với Người bán";
+            if (chatSocket) {
+                chatSocket.close();
+                console.log("WebSocket connection closed by user.");
+            }
+        }
+    };
+
+    function connectToChat() {
+        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            console.log("WebSocket is already connected.");
+            return;
+        }
+
+        // Xóa log cũ 
+        chatLog.innerHTML = '';
+
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const chatSocketURL = wsScheme + '://'
+            + window.location.host
+            + '/ws/chat/product/'
+            + productId
+            + '/seller/'
+            + sellerId
+            + '/';
+
+        console.log("Connecting to: " + chatSocketURL);
+        chatSocket = new WebSocket(chatSocketURL);
+
+        chatSocket.onopen = function(e) {
+            console.log("WebSocket connection established");
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log("Message received: ", data);
+            addMessageToLog(data.message, data.sender_username, data.sender_id, data.timestamp, data.is_history);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed. Code:', e.code, 'Reason:', e.reason);
+             if (e.wasClean) {
+                console.log('Connection closed cleanly');
+            } else {
+                console.log('Connection died');
+            }
+        };
+
+        chatSocket.onerror = function(err) {
+            console.error('WebSocket encountered error: ', err);
+        };
+    }
+
+    function addMessageToLog(message, senderUsername, senderId, timestamp, isHistory = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('mb-2', 'p-2', 'rounded-lg', 'max-w-[80%]');
+
+        const senderPrefix = parseInt(senderId) === parseInt(currentUserId) ? "Bạn" : senderUsername;
+        
+        // Tạo nội dung HTML cho tin nhắn
+        let messageHTML = `<div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-blue-600' : 'text-green-600'} font-semibold">${senderPrefix}</div>`;
+        messageHTML += `<div class="text-sm">${message}</div>`;
+        messageHTML += `<div class="text-xs text-gray-500 mt-1 text-right">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
+        
+        messageDiv.innerHTML = messageHTML;
+
+        if (parseInt(senderId) === parseInt(currentUserId)) {
+            messageDiv.classList.add('bg-blue-100', 'ml-auto'); // Tin nhắn của người dùng
+        } else {
+            messageDiv.classList.add('bg-gray-200', 'mr-auto'); // Tin nhắn của người bán
+        }
+
+        if (isHistory) {
+            messageDiv.classList.add('opacity-75'); // Làm mờ tin nhắn cũ
+        }
+
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight; // Cuộn xuống cuối cùng
+    }
+
+
+    chatMessageSubmit.onclick = function(e) {
+        const message = chatMessageInput.value;
+        if (message.trim() === '') {
+            return;
+        }
+        if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+            console.error("WebSocket is not connected. Cannot send message.");
+            return;
+        }
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        chatMessageInput.value = '';
+    };
+
+    chatMessageInput.onkeyup = function(e) {
+        if (e.key === 'Enter') {
+            chatMessageSubmit.click();
+        }
+    };
+</script>
+{% endif %}
 {% endblock %}
