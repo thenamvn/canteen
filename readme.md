@@ -80,8 +80,23 @@ DB\_HOST=localhost
 DB\_PORT=3306
 ```
 ### 
-
-5\. Run Migrations
+5\. Setup Redis for real-time chat
+Using Docker:
+```bash
+docker run --name redis-server -p 6379:6379 -d redis
+```
+Unofficial Redis build for Windows:
+Downdload zip form https://github.com/tporadowski/redis 
+Extract it and run the redis-server.exe file
+```bash
+redis-server.exe
+```
+Open another terminal and run:
+```bash
+redis-cli.exe
+```
+###
+6\. Run Migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
@@ -102,9 +117,9 @@ python manage.py collectstatic
 
 8\. Run the Development Server
 ```bash
-python manage.py runserver
+python -m daphne -p 8001 canteen.asgi:application
 ```
-Visit [http://127.0.0.1:8000/](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) in your browser to access the application.
+Visit [http://127.0.0.1:8001/](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) or any port you defined (-p 8001) in your browser to access the application.
 
 ## 📂 Project Structure
 ```
