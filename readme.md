@@ -81,17 +81,17 @@ DB\_PORT=3306
 ```
 ### 
 5\. Setup Redis for real-time chat  
-Using Docker:
+**Using Docker:**
 ```bash
 docker run --name redis-server -p 6379:6379 -d redis
 ```
-Use unofficial Redis build for Windows:
-Downdload zip form https://github.com/tporadowski/redis 
-Extract it and run the redis-server.exe file
+**Use unofficial Redis build for Windows:**
+- Downdload zip form https://github.com/tporadowski/redis 
+- Extract it and run the redis-server.exe file
 ```bash
 redis-server.exe
 ```
-Open another terminal and run:
+- Open another terminal and run:
 ```bash
 redis-cli.exe
 ```
