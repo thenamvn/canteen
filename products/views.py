@@ -34,11 +34,32 @@ class CategoryProductsView(ListView):
     
     def get_queryset(self):
         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-        return Product.objects.filter(category=self.category, is_available=True)
+        queryset = Product.objects.filter(category=self.category, is_available=True)
+        
+        # Get sort parameter from URL
+        sort_by = self.request.GET.get('sort')
+        valid_sort_fields = {
+            'name': 'name',
+            '-name': '-name',
+            'price': 'price',
+            '-price': '-price',
+            'created_at': 'created_at',
+            '-created_at': '-created_at'
+        }
+        
+        # Apply sorting if valid sort option provided
+        if sort_by in valid_sort_fields:
+            queryset = queryset.order_by(valid_sort_fields[sort_by])
+        else:
+            # Default sorting
+            queryset = queryset.order_by('-created_at')
+            
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
+        context['current_sort'] = self.request.GET.get('sort', '')
         return context
 
 class ProductDetailView(DetailView):
