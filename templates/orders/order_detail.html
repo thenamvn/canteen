@@ -36,10 +36,22 @@
                     </div>
                     {% endfor %}
                 </div>
-                <div class="border-t border-gray-200 pt-4">
+                {% comment %} <div class="border-t border-gray-200 pt-4">
                     <div class="flex justify-between items-center font-bold text-lg">
                         <p class="text-gray-800">Tổng cộng:</p>
                         <p class="text-orange-600">{{ cart.get_total_price|intcomma }} VND</p>
+                    </div>
+                </div> {% endcomment %}
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between items-center font-bold text-lg">
+                        <p class="text-gray-800">Tổng cộng:</p>
+                        <p class="text-orange-600">
+                            {% if order and order.status in 'pending_payment,payment_failed' and order.total_amount > 0 %}
+                                {{ order.total_amount|intcomma }} VND
+                            {% else %}
+                                {{ cart.get_total_price|intcomma }} VND
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -148,18 +160,108 @@
                         </div>
                     </fieldset>
 
-                    <div class="mt-8 pt-6 border-t border-gray-200">
+                    {% comment %} <div class="mt-8 pt-6 border-t border-gray-200">
                         <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                            Đặt hàng ({{ cart.get_total_price|intcomma }} VND)
+                            Đặt hàng
+                            {% if order and order.status in 'pending_payment,payment_failed' and order.total_amount > 0 %}
+                                {{ order.total_amount|intcomma }} VND
+                            {% else %}
+                                {{ cart.get_total_price|intcomma }} VND
+                            {% endif %}
                         </button>
                         <p class="text-xs text-gray-500 mt-3 text-center">Bằng việc nhấp vào "Đặt hàng", bạn đồng ý với <a href="#" class="text-orange-600 hover:underline">Điều khoản dịch vụ</a> của chúng tôi.</p>
+                    </div> {% endcomment %}
+                    {% comment %} <div class="mt-8 pt-6 border-t border-gray-200">
+                            {% if order and order.status in 'pending_payment,payment_failed' %}
+                                {% if order.payos_payment_link_id %}
+                                    <a href="https://pay.payos.vn/web/{{ order.payos_payment_link_id }}" 
+                                    class="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                        Thanh toán lại 
+                                        {{ order.total_amount|intcomma }} VND
+                                    </a>
+                                {% else %}
+                                    <p class="text-red-500 text-center py-2">Không tìm thấy liên kết thanh toán. Vui lòng liên hệ hỗ trợ.</p>
+                                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                        Thử đặt hàng lại
+                                        {{ order.total_amount|intcomma }} VND
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                    Đặt hàng
+                                    {{ cart.get_total_price|intcomma }} VND
+                                </button>
+                            {% endif %}
+                        <p class="text-xs text-gray-500 mt-3 text-center">Bằng việc nhấp vào "Đặt hàng", bạn đồng ý với <a href="#" class="text-orange-600 hover:underline">Điều khoản dịch vụ</a> của chúng tôi.</p>
+                    </div> {% endcomment %}
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        {% if order and order.status in 'pending_payment,payment_failed' %}
+                            {% if order.payment_method == 'transfer' and order.payos_payment_link_id %}
+                                <a href="https://pay.payos.vn/web/{{ order.payos_payment_link_id }}" 
+                                class="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                    Thanh toán lại 
+                                    {{ order.total_amount|intcomma }} VND
+                                </a>
+                            {% elif order.payment_method == 'transfer' %}
+                                <p class="text-red-500 text-center py-2">Không tìm thấy liên kết thanh toán. Vui lòng liên hệ hỗ trợ.</p>
+                                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                    Thử đặt hàng lại
+                                    {{ order.total_amount|intcomma }} VND
+                                </button>
+                            {% else %}
+                                <!-- For COD orders that are pending payment or payment failed -->
+                                <p class="text-yellow-600 text-center py-2">Đơn hàng thanh toán khi nhận hàng (COD) đang chờ xử lý.</p>
+                            {% endif %}
+                        {% else %}
+                            <button type="submit" id="place-order-button" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                                Đặt hàng
+                                {{ cart.get_total_price|intcomma }} VND
+                            </button>
+                        {% endif %}
+                        <p class="text-xs text-gray-500 mt-3 text-center">Bằng việc nhấp vào "Đặt hàng", bạn đồng ý với <a href="#" class="text-orange-600 hover:underline">Điều khoản dịch vụ</a> của chúng tôi.</p>
                     </div>
+
                 </div>
             </div>
         </div>
     </form>
 </div>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add this code to disable the button when COD is selected
+    const codRadio = document.querySelector('input[name="payment_method"][value="cod"]');
+    const transferRadio = document.querySelector('input[name="payment_method"][value="transfer"]');
+    const placeOrderButton = document.getElementById('place-order-button');
+    
+    if (codRadio && placeOrderButton) {
+        // Check initial state
+        if (codRadio.checked && placeOrderButton) {
+            placeOrderButton.disabled = true;
+            placeOrderButton.classList.add('opacity-50', 'cursor-not-allowed');
+            placeOrderButton.title = "Không thể đặt hàng với phương thức COD";
+        }
+        
+        // Add event listener for payment method change
+        codRadio.addEventListener('change', function() {
+            if (this.checked && placeOrderButton) {
+                placeOrderButton.disabled = true;
+                placeOrderButton.classList.add('opacity-50', 'cursor-not-allowed');
+                placeOrderButton.title = "Không thể đặt hàng với phương thức COD";
+            }
+        });
+        
+        if (transferRadio) {
+            transferRadio.addEventListener('change', function() {
+                if (this.checked && placeOrderButton) {
+                    placeOrderButton.disabled = false;
+                    placeOrderButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    placeOrderButton.title = "";
+                }
+            });
+        }
+    }
+});
+</script>
 {# Truyền biến từ Django context vào JavaScript #}
 <script id="django-context-script" type="application/json">
 {

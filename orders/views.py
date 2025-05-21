@@ -60,6 +60,37 @@ except Exception as e:
     print(f"LỖI CẤU HÌNH PAYOS: {e}")
     payos_client = None
 
+@login_required
+def order_detail(request, pk):
+    order = get_object_or_404(Order, id=pk, user=request.user)
+    
+    # Create context with both order and cart information
+    context = {
+        'order': order,
+        'items': order.items.all(),
+        'payment_method': order.payment_method,
+        'total_amount': order.total_amount,  # Use this value for display instead of cart
+        'status': order.status,
+    }
+    
+    # For orders with pending_payment or payment_failed statuses, 
+    # we need special handling since cart might be cleared already
+    if order.status in ['pending_payment', 'payment_failed']:
+        # Create a dict structure that mimics cart for template to use
+        cart_like = {
+            'get_total_price': order.total_amount,
+            'items': [{'product': item.product, 'quantity': item.quantity, 
+                      'price': item.product_price, 'total_price': item.get_total_price()} 
+                     for item in order.items.all()]
+        }
+        context['cart'] = cart_like
+    else:
+        # For other statuses, cart might be relevant if this is an active session
+        # Though likely empty if order was completed
+        cart = Cart(request)
+        context['cart'] = cart
+    
+    return render(request, 'orders/order_detail.html', context)
 
 @login_required
 def checkout(request):
