@@ -2,3 +2,9 @@ Django
 mysqlclient
 Pillow
 python-dotenv
+channels
+channels-redis
+daphne
+redis
+django-widget-tweaks
+payos

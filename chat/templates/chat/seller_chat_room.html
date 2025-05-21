@@ -1,0 +1,150 @@
+{% extends "base_seller.html" %} {# Hoặc base template của seller #}
+{% load humanize %}
+{% block title %}Chat với {{ chat_room.customer.username }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Chat về sản phẩm: <span class="text-orange-600">{{ chat_room.product.name }}</span></h1>
+    <p class="mb-6">Với khách hàng: <span class="font-medium">{{ chat_room.customer.username }}</span></p>
+
+    <div id="chat-window-seller">
+        <div id="chat-log-seller" class="border p-3 h-96 overflow-y-auto bg-gray-50 rounded-md mb-2">
+            <!-- Tin nhắn sẽ được thêm vào đây -->
+        </div>
+        <div class="flex">
+            <input type="text" id="chat-message-input-seller" class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập phản hồi...">
+            <button id="chat-message-submit-seller" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-r-md">Gửi</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lấy thông tin từ context để khởi tạo WebSocket
+    const productIdForWs = "{{ product_id_for_ws }}";
+    // Trong ngữ cảnh này, seller_id_for_ws là ID của seller (chủ shop, user hiện tại)
+    const sellerIdForWs = "{{ seller_id_for_ws }}";
+    // customer_id_for_ws là ID của khách hàng đang chat
+    const customerIdForWs = "{{ customer_id_for_ws }}";
+
+    // User hiện tại (seller)
+    const currentUserId = "{{ current_user_id_for_ws }}";
+    const currentUsername = "{{ current_username_for_ws }}";
+
+
+    const chatLogSeller = document.getElementById('chat-log-seller');
+    const chatMessageInputSeller = document.getElementById('chat-message-input-seller');
+    const chatMessageSubmitSeller = document.getElementById('chat-message-submit-seller');
+
+    let chatSocketSeller = null;
+
+    // Trong chat/templates/chat/seller_chat_room.html -> block extra_js -> connectSellerChat()
+
+    // ... (các hằng số productIdForWs, sellerIdForWs, customerIdForWs đã được lấy từ context) ...
+
+    function connectSellerChat() {
+        if (chatSocketSeller && chatSocketSeller.readyState === WebSocket.OPEN) {
+            // console.log("Seller WebSocket is already connected."); // Bỏ comment nếu cần debug
+            return;
+        }
+        if(chatLogSeller) chatLogSeller.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Đang kết nối và tải tin nhắn...</p>'; // Xóa log cũ và thêm placeholder
+
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        
+        // === PHẦN SỬA ĐỔI QUAN TRỌNG ===
+        // URL WebSocket của Seller PHẢI bao gồm product_id, seller_id (của chính seller)
+        // VÀ TRUYỀN customer_id (của người đang chat cùng) qua query string là 'other_user_id'
+        const chatSocketURL = wsScheme + '://'
+            + window.location.host
+            + '/ws/chat/product/'
+            + productIdForWs       // ID sản phẩm từ context (ví dụ: 1)
+            + '/seller/'
+            + sellerIdForWs        // ID của seller (chủ shop, ví dụ: 2) từ context
+            + '/?other_user_id='   // Thêm query parameter
+            + customerIdForWs;     // ID của customer trong phòng chat này từ context
+        // ==============================
+
+        console.log("Seller connecting to WebSocket: " + chatSocketURL); // Để kiểm tra URL
+        chatSocketSeller = new WebSocket(chatSocketURL);
+
+        chatSocketSeller.onopen = function(e) {
+            console.log("Seller WebSocket connection established");
+            // Consumer sẽ tự động gửi lịch sử chat
+            // Có thể xóa placeholder "Đang tải..." ở đây nếu muốn, nhưng onmessage xử lý thì tốt hơn
+        };
+
+        // ... (các hàm onmessage, onclose, onerror giữ nguyên như bạn đã có) ...
+        // Đảm bảo hàm addMessageToSellerLog có xóa placeholder khi tin nhắn đầu tiên đến
+        // (như đã làm ở các phiên bản trước)
+        chatSocketSeller.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log("Seller received message: ", data);
+            addMessageToSellerLog(data.message, data.sender_username, data.sender_id, data.timestamp, data.is_history);
+        };
+
+        chatSocketSeller.onclose = function(e) {
+            console.error('Seller chat socket closed. Code:', e.code, 'Reason:', e.reason, 'Was Clean:', e.wasClean);
+            if (chatLogSeller && chatLogSeller.querySelector('.text-gray-400')) { 
+                chatLogSeller.innerHTML = '<p class="text-center text-red-500 text-sm py-4">Mất kết nối. Vui lòng thử tải lại trang.</p>';
+            }
+            chatSocketSeller = null; // Reset socket
+        };
+
+        chatSocketSeller.onerror = function(err) {
+            console.error('Seller WebSocket encountered error: ', err);
+            if (chatLogSeller && chatLogSeller.querySelector('.text-gray-400')) {
+                chatLogSeller.innerHTML = '<p class="text-center text-red-500 text-sm py-4">Lỗi kết nối WebSocket.</p>';
+            }
+        };
+    }
+// ... (các hàm addMessageToSellerLog, chatMessageSubmitSeller.onclick, chatMessageInputSeller.onkeyup giữ nguyên)
+    function addMessageToSellerLog(message, senderUsername, senderId, timestamp, isHistory = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('mb-2', 'p-2', 'rounded-lg', 'max-w-[80%]');
+
+        const senderPrefix = parseInt(senderId) === parseInt(currentUserId) ? "Bạn" : senderUsername;
+
+        let messageHTML = `<div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-blue-600' : 'text-green-600'} font-semibold">${senderPrefix}</div>`;
+        messageHTML += `<div class="text-sm">${message}</div>`;
+        messageHTML += `<div class="text-xs text-gray-500 mt-1 text-right">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
+
+        messageDiv.innerHTML = messageHTML;
+
+        if (parseInt(senderId) === parseInt(currentUserId)) { // Tin nhắn của seller (mình)
+            messageDiv.classList.add('bg-blue-100', 'ml-auto');
+        } else { // Tin nhắn của customer
+            messageDiv.classList.add('bg-gray-200', 'mr-auto');
+        }
+         if (isHistory) {
+            messageDiv.classList.add('opacity-75');
+        }
+        chatLogSeller.appendChild(messageDiv);
+        chatLogSeller.scrollTop = chatLogSeller.scrollHeight;
+    }
+
+    chatMessageSubmitSeller.onclick = function(e) {
+        const message = chatMessageInputSeller.value;
+        if (message.trim() === '') return;
+        if (!chatSocketSeller || chatSocketSeller.readyState !== WebSocket.OPEN) {
+            console.error("Seller WebSocket is not connected.");
+            return;
+        }
+        chatSocketSeller.send(JSON.stringify({
+            'message': message
+        }));
+        chatMessageInputSeller.value = '';
+    };
+
+    chatMessageInputSeller.onkeyup = function(e) {
+        if (e.key === 'Enter') {
+            chatMessageSubmitSeller.click();
+        }
+    };
+
+    // Tự động kết nối khi seller vào trang
+    connectSellerChat();
+    chatMessageInputSeller.focus();
+
+</script>
+{% endblock %}

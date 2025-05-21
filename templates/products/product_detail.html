@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
 {% block title %}{{ product.name }} | Canteen{% endblock %}
 
 {% block content %}
@@ -83,13 +84,278 @@
             </div>
             {% endif %}
             
-            <div class="border-t pt-4">
-                <h3 class="font-semibold mb-2">Category:</h3>
-                <a href="{% url 'products:category' product.category.slug %}" class="text-orange-500 hover:underline">
-                    {{ product.category.name }}
-                </a>
+            <!-- add chat section // fixed-->
+            {% if user.is_authenticated and user.id != product.seller.id %}
+                <!-- Chat Icon (Floating Action Button style) -->
+                <button id="chat-fab-button"
+                        class="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg focus:outline-none z-50 transition-transform transform hover:scale-110">
+                    <i class="fas fa-comments text-2xl"></i> <!-- Sử dụng Font Awesome icon -->
+                    <span id="chat-unread-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">
+                        <!-- Số tin nhắn chưa đọc hoặc chỉ là chấm đỏ -->
+                    </span>
+                </button>
+
+                <!-- Chat Window (Modal/Panel - initially hidden) -->
+                <div id="chat-window-container"
+                    class="fixed bottom-20 right-6 w-80 sm:w-96 bg-white rounded-lg shadow-xl border border-gray-300 hidden flex flex-col z-40"
+                    style="max-height: calc(100vh - 10rem - 2rem); height: 450px;"> {# Thêm max-height và điều chỉnh height nếu cần #}
+                    
+                    <!-- Chat Header -->
+                    <div class="flex-shrink-0 flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
+                        <h3 class="text-md font-semibold">Chat với {{ product.seller.seller_profile.shop_name|default:product.seller.username }}</h3>
+                        <button id="close-chat-window-button" class="text-white hover:text-gray-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Chat Log -->
+                    <div id="chat-log-customer" class="flex-grow p-3 overflow-y-auto bg-gray-50" style="min-height: 100px;">
+                        <!-- Tin nhắn sẽ được thêm vào đây -->
+                        <p class="text-center text-gray-400 text-sm py-4 initial-chat-message">Bắt đầu cuộc trò chuyện...</p>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="flex-shrink-0 p-3 border-t border-gray-200 bg-white rounded-b-lg">
+                        <div class="flex items-center">
+                            <input type="text" id="chat-message-input-customer"
+                                class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Nhập tin nhắn...">
+                            <button id="chat-message-submit-customer"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-r-md">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% elif not user.is_authenticated %}
+                <div class="fixed bottom-6 right-6 z-50">
+                    <a href="{% url 'users:login' %}?next={{ request.path }}"
+                    class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg inline-flex items-center"
+                    title="Đăng nhập để chat">
+                        <i class="fas fa-comments text-2xl"></i>
+                    </a>
+                </div>
+            {% endif %}
+{% endblock %}
+<!--Block extra cho javascript -->
+{% block extra_js %}
+{% if user.is_authenticated and user.id != product.seller.id %}
+<script>
+    const chatFabButton = document.getElementById('chat-fab-button');
+    const chatUnreadBadge = document.getElementById('chat-unread-badge');
+    const chatWindowContainer = document.getElementById('chat-window-container');
+    const closeChatWindowButton = document.getElementById('close-chat-window-button');
+    const chatLogCustomer = document.getElementById('chat-log-customer');
+    const chatMessageInputCustomer = document.getElementById('chat-message-input-customer'); 
+    const chatMessageSubmitCustomer = document.getElementById('chat-message-submit-customer'); 
+    
+    let initialChatMessagePlaceholder = null;
+    if (chatLogCustomer) {
+        initialChatMessagePlaceholder = chatLogCustomer.querySelector('.initial-chat-message');
+    }
+
+
+    // --- WebSocket and State Variables ---
+    const productId = "{{ product.id }}";
+    const productSellerId = "{{ product.seller.id }}"; // ID của người bán
+    const currentUserId = "{{ user.id }}";
+    const currentUsername = "{{ user.username }}";
+    let activeChatSocket = null;
+    let unreadMessagesCount = 0;
+
+    // --- Helper: Add Message to Log ---
+    function addMessageToLog(logElement, message, senderUsername, senderId, timestamp, isHistory = false) {
+        if (!logElement) {
+            console.error("Log element not found in addMessageToLog");
+            return;
+        }
+        if (initialChatMessagePlaceholder && logElement.contains(initialChatMessagePlaceholder)) {
+            if (!isHistory || (isHistory && logElement.children.length === 1 && logElement.firstChild === initialChatMessagePlaceholder)) {
+                 initialChatMessagePlaceholder.remove();
+            }
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('mb-2', 'p-2', 'rounded-lg', 'max-w-[80%]', 'clear-both', 'break-words');
+
+        const senderDisplayName = (parseInt(senderId) === parseInt(currentUserId)) ? "Bạn" : senderUsername;
+        
+        messageDiv.innerHTML = `
+            <div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-blue-700' : 'text-green-700'} font-semibold mb-0.5">
+                ${senderDisplayName}
             </div>
-        </div>
-    </div>
-</div>
+            <div class="text-sm bg-white p-2 rounded-md shadow-sm">
+                ${message}
+            </div>
+            <div class="text-xs text-gray-400 mt-1 ${parseInt(senderId) === parseInt(currentUserId) ? 'text-right' : 'text-left'}">
+                ${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+        `;
+
+        if (parseInt(senderId) === parseInt(currentUserId)) {
+            messageDiv.classList.add('ml-auto', 'bg-blue-500', 'text-white');
+            messageDiv.querySelector('.text-sm').classList.remove('bg-white', 'shadow-sm');
+            messageDiv.querySelector('.text-xs.font-semibold').classList.remove('text-blue-700'); 
+        } else {
+            messageDiv.classList.add('mr-auto', 'bg-gray-200', 'text-gray-800');
+            messageDiv.querySelector('.text-sm').classList.remove('bg-white', 'shadow-sm');
+            messageDiv.querySelector('.text-xs.font-semibold').classList.remove('text-green-700');
+        }
+        if (isHistory) {
+            messageDiv.classList.add('opacity-80');
+        }
+
+        logElement.appendChild(messageDiv);
+        if (!isHistory || logElement.scrollHeight - logElement.scrollTop <= logElement.clientHeight + 70) {
+             logElement.scrollTop = logElement.scrollHeight;
+        }
+    }
+
+    function updateUnreadBadge() {
+        if (!chatUnreadBadge) return;
+        if (unreadMessagesCount > 0) {
+            chatUnreadBadge.textContent = unreadMessagesCount > 9 ? '9+' : unreadMessagesCount;
+            chatUnreadBadge.classList.remove('hidden');
+        } else {
+            chatUnreadBadge.classList.add('hidden');
+        }
+    }
+
+    function connectCustomerChat() {
+        if (activeChatSocket && activeChatSocket.readyState === WebSocket.OPEN) {
+            console.log("Customer WebSocket is already connected.");
+            return;
+        }
+        if (chatLogCustomer && initialChatMessagePlaceholder && !chatLogCustomer.contains(initialChatMessagePlaceholder) && chatLogCustomer.children.length === 0) {
+            chatLogCustomer.appendChild(initialChatMessagePlaceholder.cloneNode(true));
+        }
+
+
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const chatSocketURL = wsScheme + '://'
+            + window.location.host
+            + '/ws/chat/product/'
+            + productId
+            + '/seller/'
+            + productSellerId // Customer kết nối với seller
+            + '/';
+        
+        console.log("Customer attempting to connect to WebSocket: " + chatSocketURL);
+        activeChatSocket = new WebSocket(chatSocketURL);
+
+        activeChatSocket.onopen = function(e) {
+            console.log("Customer WebSocket connection established. ReadyState:", activeChatSocket.readyState);
+            if (chatWindowContainer && !chatWindowContainer.classList.contains('hidden')) {
+                unreadMessagesCount = 0;
+                updateUnreadBadge();
+            }
+        };
+
+        activeChatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log("Customer received message: ", data);
+            if (chatLogCustomer) {
+                addMessageToLog(chatLogCustomer, data.message, data.sender_username, data.sender_id, data.timestamp, data.is_history);
+            }
+
+            if (parseInt(data.sender_id) !== parseInt(currentUserId) && chatWindowContainer && chatWindowContainer.classList.contains('hidden')) {
+                unreadMessagesCount++;
+                updateUnreadBadge();
+            }
+        };
+
+        activeChatSocket.onclose = function(e) {
+            console.error('Customer chat socket closed. Code:', e.code, 'Reason:', e.reason, "ReadyState:", activeChatSocket ? activeChatSocket.readyState : 'N/A');
+            if (initialChatMessagePlaceholder && chatLogCustomer && !chatLogCustomer.contains(initialChatMessagePlaceholder) && chatLogCustomer.children.length === 0){
+                chatLogCustomer.appendChild(initialChatMessagePlaceholder.cloneNode(true));
+            }
+            activeChatSocket = null;
+        };
+
+        activeChatSocket.onerror = function(err) {
+            console.error('Customer WebSocket encountered error. Event:', err, "ReadyState:", activeChatSocket ? activeChatSocket.readyState : 'N/A');
+        };
+    }
+    
+    if (chatFabButton) {
+        console.log("chatFabButton found, attaching listener:", chatFabButton);
+        chatFabButton.addEventListener('click', () => {
+            console.log("FAB button clicked!");
+            if (chatWindowContainer) {
+                chatWindowContainer.classList.toggle('hidden');
+                console.log("Chat window toggled. Now hidden?", chatWindowContainer.classList.contains('hidden'));
+
+                if (!chatWindowContainer.classList.contains('hidden')) { 
+                    console.log("Opening chat window, connecting...");
+                    connectCustomerChat();
+                    if (chatMessageInputCustomer) chatMessageInputCustomer.focus();
+                    unreadMessagesCount = 0;
+                    updateUnreadBadge();
+                } else { 
+                    console.log("Chat window closed.");
+                }
+            } else {
+                console.error("chatWindowContainer NOT found when FAB clicked!");
+            }
+        });
+    } else {
+        console.error("chatFabButton NOT found!");
+    }
+
+    // ---Close Chat Window Button ---
+    if (closeChatWindowButton) {
+        console.log("closeChatWindowButton found, attaching listener:", closeChatWindowButton);
+        closeChatWindowButton.addEventListener('click', () => {
+            console.log("Close chat window button clicked!");
+            if (chatWindowContainer) {
+                chatWindowContainer.classList.add('hidden');
+                console.log("Chat window hidden by close button.");
+            } else {
+                console.error("chatWindowContainer NOT found when close button clicked!");
+            }
+        });
+    } else {
+        console.error("closeChatWindowButton NOT found!");
+    }
+
+    // --- Send Message Button ---
+    if (chatMessageSubmitCustomer) {
+        console.log("chatMessageSubmitCustomer found, attaching listener:", chatMessageSubmitCustomer);
+        chatMessageSubmitCustomer.onclick = function(e) {
+            if (!chatMessageInputCustomer) {
+                 console.error("chatMessageInputCustomer not found for submit.");
+                 return;
+            }
+            const message = chatMessageInputCustomer.value;
+            if (message.trim() === '') return;
+            
+            console.log("Attempting to send message. Socket:", activeChatSocket);
+            if (activeChatSocket) console.log("Socket readyState:", activeChatSocket.readyState);
+
+            if (!activeChatSocket || activeChatSocket.readyState !== WebSocket.OPEN) {
+                console.error("Customer WebSocket is not connected. Cannot send message.");
+                alert("Kết nối chat bị gián đoạn. Vui lòng thử mở lại cửa sổ chat.");
+                return;
+            }
+            activeChatSocket.send(JSON.stringify({ 'message': message }));
+            chatMessageInputCustomer.value = '';
+            console.log("Message sent.");
+        };
+    } else {
+        console.error("chatMessageSubmitCustomer NOT found!");
+    }
+
+    if (chatMessageInputCustomer) {
+        console.log("chatMessageInputCustomer found, attaching keyup listener:", chatMessageInputCustomer);
+        chatMessageInputCustomer.onkeyup = function(e) {
+            if (e.key === 'Enter') {
+                if (chatMessageSubmitCustomer) chatMessageSubmitCustomer.click();
+            }
+        };
+    } else {
+        console.error("chatMessageInputCustomer NOT found for keyup!");
+    }
+
+</script>
+{% endif %}
 {% endblock %}

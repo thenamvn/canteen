@@ -51,12 +51,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "channels", 
     # Custom apps
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
     "cart.apps.CartConfig",
     "orders.apps.OrdersConfig",
     "widget_tweaks",
+    "chat.apps.ChatConfig", #thêm app chat
 ]
 
 MIDDLEWARE = [
@@ -88,8 +90,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "canteen.wsgi.application"
-
+#WSGI_APPLICATION = "canteen.wsgi.application"
+ASGI_APPLICATION = "canteen.asgi.application" # Đổi qua ASGI để hỗ trợ WebSocket
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -108,6 +110,15 @@ DATABASES = {
     }
 }
 
+# Thêm channels layer để lắng nghe các sự kiện từ Redis
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],  # Địa chỉ Redis server
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
