@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block title_seller %}Bảng điều khiển Người bán{% endblock %} | Canteen{% endblock %}
+
+{% block extra_css %}
+    <style>
+        body { font-family: 'Inter', sans-serif; } /* Đã có trong base.html, nhưng có thể ghi đè */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .sidebar-link { @apply block px-4 py-2.5 rounded-md text-gray-700 hover:bg-orange-100 hover:text-orange-600 transition-colors duration-150; }
+        .sidebar-link.active { @apply bg-orange-500 text-white hover:bg-orange-600 font-semibold; }
+    </style>
+    {% block extra_css_seller %}{% endblock %} 
+{% endblock %}
+
+
+{% block content %} {# Ghi đè block content từ base.html #}
+<div class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8"> 
+    <div class="lg:flex lg:gap-8">
+        <!-- Sidebar -->
+        <aside class="lg:w-64 xl:w-72 mb-8 lg:mb-0 flex-shrink-0">
+            <div class="bg-white p-5 rounded-lg shadow-md h-fit sticky top-20"> 
+                {% if user.is_authenticated and user.is_seller and user.seller_profile %}
+                <h3 class="text-lg font-semibold text-gray-800 mb-1">Shop: {{ user.seller_profile.shop_name }}</h3>
+                <p class="text-sm text-gray-500 mb-6">Quản lý cửa hàng của bạn</p>
+                {% endif %}
+                <nav class="space-y-1">
+                    <a href="{% url 'seller:dashboard' %}" class="sidebar-link {% if request.resolver_match.app_name == 'products' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-boxes fa-fw w-5 mr-3"></i>Sản phẩm
+                    </a>
+                    <a href="{% url 'orders:seller_orders' %}" class="sidebar-link {% if request.resolver_match.app_name == 'orders' and 'seller_order' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-receipt fa-fw w-5 mr-3"></i>Đơn hàng
+                    </a>
+                    <a href="{% url 'chat:seller_chat_list' %}" class="sidebar-link {% if request.resolver_match.app_name == 'chat' and 'seller_chat' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-comments fa-fw w-5 mr-3"></i>Tin nhắn Chat
+                    </a>
+                    <a href="{% url 'users:seller_profile' %}" class="sidebar-link {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'seller_profile' %}active{% endif %}">
+                        <i class="fas fa-store-alt fa-fw w-5 mr-3"></i>Cài đặt Shop
+                    </a>
+                    <!--Thêm quay trang chủ Customer-->
+                    <div class="pt-3 mt-3 border-t border-gray-200">
+                        <a href="{% url 'products:home' %}" class="sidebar-link">
+                            <i class="fas fa-home fa-fw w-5 mr-3"></i>Quay lại
+                        </a>
+                    </div>
+                    #}
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Page Content for Seller -->
+        <main class="lg:flex-1 min-w-0">
+            {% block page_header_seller %}
+            {% endblock %}
+            
+            <div class="bg-white p-6 rounded-lg shadow-md">
+            {% block content_seller_main %}
+                <p>Nội dung mặc định của trang quản lý người bán.</p>
+            {% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+<!-- block cho js của các trang seller-->
+{% block extra_js %}
+    {% block extra_js_seller %}{% endblock %}
+{% endblock %}
