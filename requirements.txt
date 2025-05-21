@@ -6,3 +6,5 @@ channels
 channels-redis
 daphne
 redis
+django-widget-tweaks
+payos
