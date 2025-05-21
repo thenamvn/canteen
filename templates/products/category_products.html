@@ -125,9 +125,12 @@
     // Set the current sort option on page load
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const currentSort = urlParams.get('sort');
+        const currentSort = urlParams.get('sort') || '-created_at'; // Default to newest first
         if (currentSort) {
-            sortSelect.value = currentSort;
+            const option = sortSelect.querySelector(`option[value="${currentSort}"]`);
+            if (option) {
+                option.selected = true;
+            }
         }
     });
 </script>

@@ -37,7 +37,7 @@ class CategoryProductsView(ListView):
         queryset = Product.objects.filter(category=self.category, is_available=True)
         
         # Get sort parameter from URL
-        sort_by = self.request.GET.get('sort')
+        sort_by = self.request.GET.get('sort','-created_at')
         valid_sort_fields = {
             'name': 'name',
             '-name': '-name',
