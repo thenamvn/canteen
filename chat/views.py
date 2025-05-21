@@ -21,16 +21,14 @@ def seller_chat_room_view(request, room_id):
 
     # Đảm bảo seller này là người sở hữu phòng chat
     if chat_room.seller != request.user:
-        # return HttpResponseForbidden("Bạn không có quyền truy cập phòng chat này.")
-        # Hoặc redirect về danh sách chat của họ
         return redirect('chat:seller_chat_list')
 
     # Lấy thông tin cần thiết để JavaScript có thể kết nối WebSocket
     # Thông tin này phải khớp với cách ChatConsumer tạo room_name
     product_id = chat_room.product.id
     # ID của người đối diện (customer)
-    other_user_id = chat_room.customer.id # Đây là customer
-    seller_id_for_ws = chat_room.seller.id # Đây là seller (chính là request.user.id)
+    other_user_id = chat_room.customer.id 
+    seller_id_for_ws = chat_room.seller.id
 
 
     context = {
