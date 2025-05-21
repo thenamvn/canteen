@@ -103,19 +103,19 @@ python manage.py migrate
 ```
 ### 
 
-6\. Create a Superuser
+7\. Create a Superuser
 ```bash
 python manage.py createsuperuser
 ```
 ### 
 
-7\. Collect Static Files
+8\. Collect Static Files
 ```bash
 python manage.py collectstatic
 ```
 ### 
 
-8\. Run the Development Server
+9\. Run the Development Server
 ```bash
 python -m daphne -p 8001 canteen.asgi:application
 ```
