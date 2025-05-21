@@ -152,19 +152,23 @@ canteen/
 
 ## 🖥️ Screenshots
 
-<img alt="Homepage" src="https://via.placeholder.com/800x450/ffffff/333333?text=Homepage">
+![image](https://github.com/user-attachments/assets/7ca006f8-7f31-4f4e-bc2e-b131014581a6)
+
 
 _Browse food items from various categories_
 
-<img alt="Product Detail" src="https://via.placeholder.com/800x450/ffffff/333333?text=Product+Detail">
+![image](https://github.com/user-attachments/assets/028574c1-2831-47d0-b09e-e3354aee433e)
+
 
 _View detailed product information_
 
-<img alt="Shopping Cart" src="https://via.placeholder.com/800x450/ffffff/333333?text=Shopping+Cart">
+![image](https://github.com/user-attachments/assets/143bef37-8a7e-4b88-890e-9c0c72640eab)
+
 
 _Manage your shopping cart_
 
-<img alt="Seller Dashboard" src="https://via.placeholder.com/800x450/ffffff/333333?text=Seller+Dashboard">
+![image](https://github.com/user-attachments/assets/5d23a480-6092-49bd-b431-487676c144c0)
+
 
 _Seller's product management interface_
 
@@ -186,13 +190,9 @@ _Seller's product management interface_
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Contributors
-
-*   [Your Name](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) - Project Lead & Developer
-
 ## 📬 Contact
 
 For questions or feedback, please contact us at:
 
-*   Email: [your.email@example.com](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html)
-*   GitHub: [Your GitHub Profile](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html)
+*   Email: [ntnhacker1@gmail.com](vscode-file://vscode-app/c:/Users/Administrator/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html)
+*   GitHub: (https://github.com/thenamvn)
