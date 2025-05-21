@@ -29,3 +29,15 @@ class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
         fields = ['recipient_name', 'phone_number', 'street_address', 'ward', 'district', 'city', 'is_default']
+        
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'phone_number']  # Updated to match your model fields
+        
+        # Widgets for better form appearance with tailwind classes instead of bootstrap
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500'}),
+            'last_name': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500'}),
+            'phone_number': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500'}),
+        }

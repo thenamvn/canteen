@@ -5,7 +5,7 @@ from django.views.generic import CreateView, UpdateView, DetailView  # Thêm Det
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Address, SellerProfile
-from .forms import UserRegisterForm, AddressForm, SellerProfileForm, UserLoginForm
+from .forms import UserRegisterForm, AddressForm, SellerProfileForm, UserLoginForm, ProfileUpdateForm
 from django.contrib.auth.views import LoginView
 from products.models import Product
 from django.db.models import Avg, Count
@@ -13,6 +13,7 @@ from django.core.paginator import Paginator
 from orders.models import OrderItem
 from products.models import Product, Category
 from django.urls import reverse_lazy, reverse
+from django.contrib import messages
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -69,6 +70,19 @@ class SellerProfileUpdateView(LoginRequiredMixin, UpdateView):
         
     def get_success_url(self):
         return reverse_lazy('users:shop_profile', kwargs={'pk': self.object.pk})
+
+@login_required
+def profile_edit(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thông tin của bạn đã được cập nhật thành công!')
+            return redirect('users:profile')  # Adjust to your actual profile view name
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    
+    return render(request, 'users/profile_edit.html', {'form': form})
 
 class CustomLoginView(LoginView):
     form_class = UserLoginForm
