@@ -1,6 +1,6 @@
 **Canteen - Online Food Delivery Platform**
 
-<img alt="Canteen Banner" src="https://via.placeholder.com/1200x300/ff9966/ffffff?text=Canteen+Online+Food+Platform">
+![image](https://github.com/user-attachments/assets/301729cb-a129-4938-80af-db58cc223864)
 
 **🍔 Overview**
 
