@@ -12,8 +12,8 @@
             <!-- Tin nhắn sẽ được thêm vào đây -->
         </div>
         <div class="flex">
-            <input type="text" id="chat-message-input-seller" class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập phản hồi...">
-            <button id="chat-message-submit-seller" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-r-md">Gửi</button>
+            <input type="text" id="chat-message-input-seller" class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Nhập phản hồi...">
+            <button id="chat-message-submit-seller" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-r-md">Gửi</button>
         </div>
     </div>
 </div>
@@ -105,14 +105,14 @@
 
         const senderPrefix = parseInt(senderId) === parseInt(currentUserId) ? "Bạn" : senderUsername;
 
-        let messageHTML = `<div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-blue-600' : 'text-green-600'} font-semibold">${senderPrefix}</div>`;
+        let messageHTML = `<div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-orange-600' : 'text-green-600'} font-semibold">${senderPrefix}</div>`;
         messageHTML += `<div class="text-sm">${message}</div>`;
         messageHTML += `<div class="text-xs text-gray-500 mt-1 text-right">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
 
         messageDiv.innerHTML = messageHTML;
 
         if (parseInt(senderId) === parseInt(currentUserId)) { // Tin nhắn của seller (mình)
-            messageDiv.classList.add('bg-blue-100', 'ml-auto');
+            messageDiv.classList.add('bg-orange-100', 'ml-auto');
         } else { // Tin nhắn của customer
             messageDiv.classList.add('bg-gray-200', 'mr-auto');
         }
