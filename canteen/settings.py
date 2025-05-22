@@ -35,7 +35,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "54.253.40.34",
-    "<EC2-public-DNS>",
+    "16.176.20.125",
     "localhost",
     "127.0.0.1",
 ]

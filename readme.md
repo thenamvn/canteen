@@ -15,12 +15,16 @@ Canteen is a modern, Django-based web application for online food ordering and d
 *   **Shopping Cart** - Add items to cart and modify quantities before checkout
 *   **Order Management** - Track order status and view order history
 *   **User Profile** - Manage personal information and delivery addresses
-
+*   **Online Payment** - Secure payment processing via PayOS integration
+*   **Real-time Chat** - Communicate directly with sellers
 **For Sellers**
 
 *   **Product Management** - Add, edit, and delete food items
 *   **Order Processing** - View and manage received orders
 *   **Availability Control** - Toggle product availability status
+*   **Real-time Chat Management** - View and respond to customer inquiries via a dedicated chat interface
+*   **Seller Profile Management** - Update shop information and logo
+
 
 **For Administrators**
 
@@ -30,10 +34,12 @@ Canteen is a modern, Django-based web application for online food ordering and d
 
 **🛠️ Tech Stack**
 
-*   **Backend**: Django 5.1.3
+*   **Backend**: Django 5.1.3, Django Channels (for WebSockets)
 *   **Database**: MySQL
-*   **Frontend**: HTML5, CSS3, Tailwind CSS (via CDN)
+*   **Frontend**: HTML5, CSS3, Tailwind CSS
+*   **Channel Layer**: Redis (for Django Channels)
 *   **Media Storage**: Local file system
+*   **Payment Gateway**: PayOS SDK
 *   **Authentication**: Django's built-in authentication system with custom User model
 
 **📋 Prerequisites**
@@ -149,21 +155,36 @@ canteen/
 
 ### Models
 
-*   **User** - Extended Django user with seller capabilities
-*   **Product** - Food items with details, pricing, and availability
-*   **Category** - Hierarchical product categorization
-*   **Cart** - User shopping cart functionality
-*   **Order/OrderItem** - Order processing and history
-*   **Address** - User delivery addresses
+*   **User** - Extended Django user with seller capabilities and profile ([users/models.py](users/models.py))
+*   **Product** - Food items with details, pricing, and availability ([products/models.py](products/models.py))
+*   **Category** - Hierarchical product categorization ([products/models.py](products/models.py))
+*   **Cart** - Session-based user shopping cart functionality ([cart/cart.py](cart/cart.py))
+*   **Order/OrderItem** - Order processing, history, and payment details ([orders/models.py](orders/models.py))
+*   **Address** - User delivery addresses ([users/models.py](users/models.py))
+*   **ChatRoom/ChatMessage** - Models for managing real-time chat sessions and messages between users and sellers ([chat/models.py](chat/models.py))
+*   **SellerProfile** - Dedicated profile for sellers to manage shop details ([users/models.py](users/models.py))
+
 
 ### Views
 
-*   **HomeView** - Landing page with product listing
-*   **CategoryProductsView** - Products filtered by category
-*   **ProductDetailView** - Detailed product view
-*   **CartView** - Shopping cart management
-*   **CheckoutView** - Order finalization
-*   **SellerDashboard** - Seller product management
+*   **HomeView** - Landing page with product listing ([products/views.py](products/views.py))
+*   **CategoryProductsView** - Products filtered by category with sorting ([products/views.py](products/views.py))
+*   **ProductDetailView** - Detailed product view, including customer chat initiation ([products/views.py](products/views.py))
+*   **CartView** - Shopping cart management ([cart/views.py](cart/views.py))
+*   **CheckoutView** - Order finalization, address selection/creation, and payment method selection ([orders/views.py](orders/views.py))
+*   **Order Views** - Customer order list, order detail, PayOS payment handling (return, cancel, webhook) ([orders/views.py](orders/views.py))
+*   **SellerDashboard** - Seller product management ([products/views.py](products/views.py))
+*   **Seller Order Views** - Seller-specific order list and detail views ([orders/views.py](orders/views.py))
+*   **Seller Chat Views** - List of chat rooms and individual chat room interface for sellers ([chat/views.py](chat/views.py))
+*   **User Profile Views** - Customer profile, address management, seller profile editing ([users/views.py](users/views.py))
+
+### Core Logic
+
+*   **Payment Integration**: Utilizes PayOS SDK for online payments, handling payment link creation, return/cancel URLs, and webhooks for status updates ([orders/views.py](orders/views.py)).
+*   **Real-time Chat**: Implemented using Django Channels and WebSockets, with Redis as the channel layer. Separate consumer logic for customer and seller interactions ([chat/consumers.py](chat/consumers.py)).
+*   **Address Management**: Users can add, edit, and select delivery addresses during checkout or from their profile.
+*   **Order Status Flow**: Comprehensive order status management (e.g., `pending_payment`, `processing`, `shipped`, `delivered`, `cancelled`, `payment_failed`).
+
 
 ## 🖥️ Screenshots
 
@@ -189,11 +210,16 @@ _Seller's product management interface_
 
 ## 🔄 Workflow
 
-1.  **Customers** browse products by category or search
-2.  **Customers** add products to cart
-3.  **Customers** checkout and place orders
-4.  **Sellers** receive and process orders
-5.  **Customers** track order status
+1.  **Customers** browse products by category or search, and can sort them.
+2.  **Customers** view product details and can initiate a real-time chat with the **Seller**.
+3.  **Customers** add products to cart.
+4.  **Customers** proceed to checkout, select/add a delivery address, and choose a payment method (COD or PayOS).
+5.  If PayOS is chosen, the **Customer** is redirected to the PayOS gateway to complete payment.
+6.  **Sellers** receive new orders and can view them in their dashboard.
+7.  **Sellers** manage conversations with **Customers** through their chat interface.
+8.  **Sellers** process orders, updating their status (e.g., processing, shipped).
+9.  **Customers** track order status in their profile.
+10. System handles payment confirmations and failures via PayOS webhooks and return URLs.
 
 ## 🌟 Acknowledgments
 
