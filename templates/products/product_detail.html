@@ -88,7 +88,7 @@
             {% if user.is_authenticated and user.id != product.seller.id %}
                 <!-- Chat Icon (Floating Action Button style) -->
                 <button id="chat-fab-button"
-                        class="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg focus:outline-none z-50 transition-transform transform hover:scale-110">
+                        class="fixed bottom-6 right-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-4 shadow-lg focus:outline-none z-50 transition-transform transform hover:scale-110">
                     <i class="fas fa-comments text-2xl"></i> <!-- Sử dụng Font Awesome icon -->
                     <span id="chat-unread-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">
                         <!-- Số tin nhắn chưa đọc hoặc chỉ là chấm đỏ -->
@@ -98,14 +98,19 @@
                 <!-- Chat Window (Modal/Panel - initially hidden) -->
                 <div id="chat-window-container"
                     class="fixed bottom-20 right-6 w-80 sm:w-96 bg-white rounded-lg shadow-xl border border-gray-300 hidden flex flex-col z-40"
-                    style="max-height: calc(100vh - 10rem - 2rem); height: 450px;"> {# Thêm max-height và điều chỉnh height nếu cần #}
+                    style="max-height: calc(100vh - 8rem); height: 500px;"> {# Thêm max-height và điều chỉnh height nếu cần #}
                     
                     <!-- Chat Header -->
-                    <div class="flex-shrink-0 flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
+                    <div class="flex-shrink-0 flex justify-between items-center p-3 bg-orange-500 text-white rounded-t-lg">
                         <h3 class="text-md font-semibold">Chat với {{ product.seller.seller_profile.shop_name|default:product.seller.username }}</h3>
-                        <button id="close-chat-window-button" class="text-white hover:text-gray-200">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <div class="flex space-x-2">
+                            <button id="minimize-chat-window-button" class="text-white hover:text-gray-200">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button id="close-chat-window-button" class="text-white hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Chat Log -->
@@ -116,12 +121,12 @@
 
                     <!-- Chat Input -->
                     <div class="flex-shrink-0 p-3 border-t border-gray-200 bg-white rounded-b-lg">
-                        <div class="flex items-center">
+                        <div class="flex items-center h-10">
                             <input type="text" id="chat-message-input-customer"
-                                class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                class="flex-grow border rounded-l-md p-2 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 placeholder="Nhập tin nhắn...">
                             <button id="chat-message-submit-customer"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-r-md">
+                                    class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-r-md">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -130,7 +135,7 @@
             {% elif not user.is_authenticated %}
                 <div class="fixed bottom-6 right-6 z-50">
                     <a href="{% url 'users:login' %}?next={{ request.path }}"
-                    class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg inline-flex items-center"
+                    class="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-4 shadow-lg inline-flex items-center"
                     title="Đăng nhập để chat">
                         <i class="fas fa-comments text-2xl"></i>
                     </a>
@@ -181,7 +186,7 @@
         const senderDisplayName = (parseInt(senderId) === parseInt(currentUserId)) ? "Bạn" : senderUsername;
         
         messageDiv.innerHTML = `
-            <div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-blue-700' : 'text-green-700'} font-semibold mb-0.5">
+            <div class="text-xs ${parseInt(senderId) === parseInt(currentUserId) ? 'text-orange-700' : 'text-green-700'} font-semibold mb-0.5">
                 ${senderDisplayName}
             </div>
             <div class="text-sm bg-white p-2 rounded-md shadow-sm">
@@ -193,9 +198,9 @@
         `;
 
         if (parseInt(senderId) === parseInt(currentUserId)) {
-            messageDiv.classList.add('ml-auto', 'bg-blue-500', 'text-white');
+            messageDiv.classList.add('ml-auto', 'bg-orange-500', 'text-white');
             messageDiv.querySelector('.text-sm').classList.remove('bg-white', 'shadow-sm');
-            messageDiv.querySelector('.text-xs.font-semibold').classList.remove('text-blue-700'); 
+            messageDiv.querySelector('.text-xs.font-semibold').classList.remove('text-orange-700');
         } else {
             messageDiv.classList.add('mr-auto', 'bg-gray-200', 'text-gray-800');
             messageDiv.querySelector('.text-sm').classList.remove('bg-white', 'shadow-sm');
@@ -276,23 +281,56 @@
             console.error('Customer WebSocket encountered error. Event:', err, "ReadyState:", activeChatSocket ? activeChatSocket.readyState : 'N/A');
         };
     }
+
+    // --- Thu nhỏ Chat Window --- 
+    let isChatMinimized = false;
+    const minimizeChatWindowButton = document.getElementById('minimize-chat-window-button');
+    const chatBody = document.getElementById('chat-log-customer');
+    const chatInputArea = document.querySelector('.flex-shrink-0.p-3.border-t');
+
+    if (minimizeChatWindowButton) {
+        minimizeChatWindowButton.addEventListener('click', () => {
+            isChatMinimized = !isChatMinimized;
+            
+            if (isChatMinimized) {
+                // Thu nhỏ chat
+                if (chatBody) chatBody.classList.add('hidden');
+                if (chatInputArea) chatInputArea.classList.add('hidden');
+                if (chatWindowContainer) chatWindowContainer.style.height = 'auto';
+                minimizeChatWindowButton.innerHTML = '<i class="fas fa-plus"></i>';
+            } else {
+                // Mở rộng chat
+                if (chatBody) chatBody.classList.remove('hidden');
+                if (chatInputArea) chatInputArea.classList.remove('hidden');
+                if (chatWindowContainer) chatWindowContainer.style.height = '500px';
+                minimizeChatWindowButton.innerHTML = '<i class="fas fa-minus"></i>';
+            }
+        });
+    }
     
     if (chatFabButton) {
-        console.log("chatFabButton found, attaching listener:", chatFabButton);
         chatFabButton.addEventListener('click', () => {
             console.log("FAB button clicked!");
             if (chatWindowContainer) {
-                chatWindowContainer.classList.toggle('hidden');
-                console.log("Chat window toggled. Now hidden?", chatWindowContainer.classList.contains('hidden'));
-
-                if (!chatWindowContainer.classList.contains('hidden')) { 
-                    console.log("Opening chat window, connecting...");
+                // Nếu chat đang ẩn, mở nó và đảm bảo không ở chế độ thu nhỏ
+                if (chatWindowContainer.classList.contains('hidden')) {
+                    chatWindowContainer.classList.remove('hidden');
+                    
+                    // Nếu đang ở chế độ thu nhỏ, mở rộng nó
+                    if (isChatMinimized) {
+                        isChatMinimized = false;
+                        if (chatBody) chatBody.classList.remove('hidden');
+                        if (chatInputArea) chatInputArea.classList.remove('hidden');
+                        if (chatWindowContainer) chatWindowContainer.style.height = '500px';
+                        if (minimizeChatWindowButton) minimizeChatWindowButton.innerHTML = '<i class="fas fa-minus"></i>';
+                    }
+                    
                     connectCustomerChat();
                     if (chatMessageInputCustomer) chatMessageInputCustomer.focus();
                     unreadMessagesCount = 0;
                     updateUnreadBadge();
-                } else { 
-                    console.log("Chat window closed.");
+                } else {
+                    chatWindowContainer.classList.add('hidden');
                 }
             } else {
                 console.error("chatWindowContainer NOT found when FAB clicked!");
